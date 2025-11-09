@@ -1,8 +1,9 @@
 {
   "name": "bra-alsalfh",
   "version": "1.0.0",
-  "description": "لعبة عبود - سيرفر Node",
+  "description": "لعبة عبود – سيرفر",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "node server.js"
   },
