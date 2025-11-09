@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="لعبة برا السالفة - لعبة تفاعلية متعددة اللاعبين عبر الإنترنت. العب مع أصدقائك واكتشف المندس!">
+  <meta name="keywords" content="لعبة، برا السالفة، ألعاب اجتماعية، لعبة أونلاين، ألعاب متعددة اللاعبين">
+  <meta name="theme-color" content="#667eea">
+  <meta property="og:title" content="لعبة برا السالفة">
+  <meta property="og:description" content="لعبة تفاعلية متعددة اللاعبين عبر الإنترنت">
+  <meta property="og:type" content="website">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>لعبة برا السالفة</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 700px;
+      width: 100%;
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #667eea;
+      font-size: 28px;
+    }
+    
+    h2 {
+      color: #667eea;
+      margin-bottom: 20px;
+      font-size: 22px;
+    }
+    
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #eee;
+      overflow-x: auto;
+    }
+    
+    .tab-btn {
+      padding: 10px 20px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 16px;
+      color: #999;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+    
+    .tab-btn.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .input-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #333;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      font-family: Arial;
+      color: #333;
+      background: white;
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.3s;
+    }
+    
+    button:hover:not(:disabled) {
+      background: #764ba2;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .error {
+      background: #fee;
+      color: #c33;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: none;
+      border-left: 4px solid #c33;
+    }
+    
+    .success {
+      background: #efe;
+      color: #3c3;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: none;
+      border-left: 4px solid #3c3;
+    }
+    
+    .room-card {
+      background: #f8f9ff;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.3s;
+    }
+    
+    .room-card:hover {
+      border-color: #667eea;
+      background: #f0f2ff;
+      transform: translateX(-5px);
+    }
+    
+    .room-card strong {
+      color: #667eea;
+      display: block;
+      margin-bottom: 8px;
+    }
+    
+    .room-info {
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .room-code-display {
+      background: #f0f0f0;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    
+    .room-code-display .label {
+      color: #333;
+      font-size: 14px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    
+    .room-code-display .code {
+      font-size: 48px;
+      font-weight: bold;
+      color: #667eea;
+      letter-spacing: 5px;
+      font-family: 'Courier New', monospace;
+      margin: 15px 0;
+    }
+    
+    .copy-btn {
+      padding: 10px 20px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      margin: 10px auto;
+      width: auto;
+      display: block;
+    }
+    
+    .copy-btn:hover {
+      background: #764ba2;
+    }
+    
+    .players-list {
+      background: #f8f9ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    
+    .players-list h4 {
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+    
+    .player-item {
+      padding: 8px;
+      background: white;
+      margin-bottom: 8px;
+      border-radius: 5px;
+      border-left: 3px solid #667eea;
+      padding-left: 12px;
+      color: #333;
+    }
+    
+    .word-display {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px;
+      border-radius: 15px;
+      margin: 30px 0;
+      font-size: 48px;
+      font-weight: bold;
+      letter-spacing: 3px;
+      text-align: center;
+    }
+    
+    .spy-badge {
+      background: #ff6b6b;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 25px;
+      display: inline-block;
+      margin: 20px 0;
+      font-weight: bold;
+      animation: spyPulse 1s infinite;
+    }
+    
+    @keyframes spyPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    .players-in-game {
+      background: #f8f9ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      text-align: right;
+    }
+    
+    .players-in-game h4 {
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+    
+    .player-badge {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 20px;
+      margin: 5px;
+      font-size: 14px;
+    }
+    
+    .player-badge.current {
+      background: #ff9800;
+      font-weight: bold;
+      animation: pulse 1s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    .question-player {
+      background: #ff9800;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+    }
+    
+    .phase-indicator {
+      background: #667eea;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 20px;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    
+    .voting-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    
+    .vote-btn {
+      padding: 15px;
+      background: #f0f0f0;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+      width: 100%;
+      margin: 0;
+      color: #333;
+    }
+    
+    .vote-btn:hover {
+      background: #ff6b6b;
+      color: white;
+      border-color: #ff6b6b;
+    }
+    
+    .vote-btn.selected {
+      background: #ff6b6b;
+      color: white;
+      border-color: #ff6b6b;
+      transform: scale(1.05);
+    }
+    
+    .result-box {
+      background: #f0f0f0;
+      padding: 30px;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+    
+    .result-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #667eea;
+      margin-bottom: 15px;
+    }
+    
+    .result-message {
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 15px;
+    }
+    
+    .word-reveal {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      border-left: 4px solid #667eea;
+      color: #333;
+    }
+    
+    .word-reveal strong {
+      color: #667eea;
+    }
+    
+    .room-type-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .room-type-btn {
+      padding: 15px;
+      border: 2px solid #ddd;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+      color: #333;
+    }
+    
+    .room-type-btn:hover {
+      border-color: #667eea;
+      background: #f0f2ff;
+    }
+    
+    .room-type-btn.selected {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+    
+    .empty-message {
+      text-align: center;
+      color: #999;
+      padding: 20px;
+    }
+    
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    
+    .button-group button {
+      margin-top: 0;
+    }
+    
+    .btn-danger {
+      background: #ff6b6b;
+    }
+    
+    .btn-danger:hover:not(:disabled) {
+      background: #ff5252;
+    }
+    
+    .btn-success {
+      background: #4CAF50;
+    }
+    
+    .btn-success:hover:not(:disabled) {
+      background: #45a049;
+    }
+    
+    .waiting-animation {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    
+    .dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: #667eea;
+      border-radius: 50%;
+      margin: 0 5px;
+      animation: bounce 1.4s infinite;
+    }
+    
+    .dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    
+    .dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+    
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+    
+    .waiting-text {
+      color: #667eea;
+      font-size: 16px;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    
+    .support-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      transition: all 0.3s;
+      z-index: 999;
+    }
+    
+    .support-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+    
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      animation: fadeIn 0.3s;
+    }
+    
+    .modal-overlay.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+      animation: slideUp 0.3s;
+    }
+    
+    @keyframes slideUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: none;
+      border: none;
+      font-size: 28px;
+      color: #999;
+      cursor: pointer;
+      width: auto;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .modal-close:hover {
+      color: #333;
+    }
+    
+    .modal-title {
+      text-align: center;
+      color: #667eea;
+      font-size: 24px;
+      margin-bottom: 30px;
+      margin-top: 20px;
+    }
+    
+    .support-section {
+      margin-bottom: 25px;
+      padding-bottom: 25px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .support-section:last-child {
+      border-bottom: none;
+    }
+    
+    .support-section h3 {
+      color: #667eea;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    
+    .support-section p {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+    
+    .iban-copy {
+      background: #f0f0f0;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      font-weight: bold;
+      color: #667eea;
+      transition: all 0.3s;
+      user-select: none;
+    }
+    
+    .iban-copy:hover {
+      background: #e0e0e0;
+      transform: scale(1.02);
+    }
+    
+    .support-link {
+      display: inline-block;
+      color: #667eea;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 10px 15px;
+      background: #f0f2ff;
+      border-radius: 8px;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    
+    .support-link:hover {
+      background: #667eea;
+      color: white;
+    }
+    
+    .voting-progress {
+      background: #f0f2ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      text-align: center;
+      color: #667eea;
+      font-weight: bold;
+    }
+    
+    .reconnect-banner {
+      background: #fff3cd;
+      color: #856404;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      border-left: 4px solid #ffc107;
+      display: none;
+    }
+    
+    .reconnect-banner.show {
+      display: block;
+    }
+    
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+      
+      h1 {
+        font-size: 22px;
+      }
+      
+      .word-display {
+        font-size: 36px;
+        padding: 30px;
+      }
+      
+      .voting-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .room-type-selector {
+        grid-template-columns: 1fr;
+      }
+      
+      .support-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        bottom: 15px;
+        left: 15px;
+      }
+      
+      .modal-content {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🕵️ لعبة برا السالفة</h1>
+    
+    <div id="reconnectBanner" class="reconnect-banner">
+      ⚠️ تم قطع الاتصال... جاري إعادة الاتصال
+    </div>
+    
+    <!-- شاشة تسجيل الدخول -->
+    <div id="loginScreen">
+      <div class="input-group">
+        <label>اسمك:</label>
+        <input type="text" id="playerName" placeholder="أدخل اسمك">
+      </div>
+      <button onclick="startGame()">ابدأ اللعبة</button>
+    </div>
+    
+    <!-- شاشة الغرف -->
+    <div id="roomScreen" style="display:none;">
+      <div class="error" id="errorMsg"></div>
+      <div class="success" id="successMsg"></div>
+      
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('create', event)">إنشاء غرفة</button>
+        <button class="tab-btn" onclick="switchTab('join', event)">الانضمام</button>
+        <button class="tab-btn" onclick="switchTab('code', event)">من رمز</button>
+      </div>
+      
+      <!-- تبويب إنشاء غرفة -->
+      <div id="create" class="tab-content active">
+        <div class="input-group">
+          <label>اسم الغرفة:</label>
+          <input type="text" id="roomName" placeholder="مثل: جلسة الشباب">
+        </div>
+        <div class="input-group">
+          <label>عدد اللاعبين:</label>
+          <select id="maxPlayers">
+            <option value="3">3</option>
+            <option value="4" selected>4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>نوع الكلمات:</label>
+          <select id="category">
+            <option value="mix">المكس (جميع الأنواع)</option>
+            <option value="saudi_league">دوري السعودي</option>
+            <option value="foreign_players">اللاعبين الأجانب</option>
+            <option value="cars">السيارات</option>
+            <option value="food_detailed">الطعام</option>
+            <option value="drinks">المشروبات</option>
+            <option value="objects">الجمادات</option>
+            <option value="video_games">الألعاب</option>
+            <option value="restaurants">المطاعم</option>
+            <option value="cafes">المقاهي</option>
+          </select>
+        </div>
+        
+        <div class="input-group">
+          <label>نوع الغرفة:</label>
+          <div class="room-type-selector">
+            <button class="room-type-btn selected" onclick="selectRoomType('private')" id="privateBtn">
+              🔒 غرفة خاصة<br><small>رمز 6 أحرف</small>
+            </button>
+            <button class="room-type-btn" onclick="selectRoomType('public')" id="publicBtn">
+              🌐 غرفة عامة<br><small>تظهر للجميع</small>
+            </button>
+          </div>
+        </div>
+        
+        <button onclick="createRoom()" class="btn-success">إنشاء غرفة</button>
+      </div>
+      
+      <!-- تبويب الانضمام من القائمة -->
+      <div id="join" class="tab-content">
+        <h3 style="margin-bottom: 20px; color: #667eea;">الغرف العامة المتاحة:</h3>
+        <div id="roomsList"></div>
+      </div>
+      
+      <!-- تبويب الانضمام من رمز -->
+      <div id="code" class="tab-content">
+        <div class="input-group">
+          <label>رمز الغرفة (6 أحرف):</label>
+          <input type="text" id="roomCodeInput" placeholder="مثل: ABC123" maxlength="6" oninput="validateRoomCode()">
+          <small id="codeError" style="color: #c33; display: none;">الرمز يجب أن يكون 6 أحرف بدون فراغات</small>
+        </div>
+        <button onclick="joinFromCode()" class="btn-success">الانضمام</button>
+      </div>
+      
+      <!-- شاشة الغرفة المنشأة -->
+      <div id="roomCreatedScreen" style="display:none;">
+        <h2>✅ تم إنشاء الغرفة!</h2>
+        <div class="room-code-display">
+          <div class="label">شارك هذا الرمز مع أصدقائك:</div>
+          <div class="code" id="roomCodeDisplay"></div>
+          <button class="copy-btn" onclick="copyRoomCode()">📋 نسخ الرمز</button>
+        </div>
+        <div class="players-list">
+          <h4>اللاعبون:</h4>
+          <div id="playersList"></div>
+        </div>
+        <div class="button-group">
+          <button id="startBtn" onclick="startGameSession()" class="btn-success">ابدأ اللعبة</button>
+          <button onclick="cancelRoom()" class="btn-danger">إلغاء الغرفة</button>
+        </div>
+      </div>
+      
+      <!-- شاشة الغرفة المنضم لها -->
+      <div id="joinedRoomScreen" style="display:none;">
+        <h2>✅ انضممت للغرفة!</h2>
+        <div class="room-code-display">
+          <div class="label">رمز الغرفة:</div>
+          <div class="code" id="joinedRoomCode"></div>
+        </div>
+        <div class="players-list">
+          <h4>اللاعبون:</h4>
+          <div id="joinedPlayersList"></div>
+        </div>
+        <p style="color: #999; text-align: center; margin-top: 20px;">في انتظار بدء اللعبة...</p>
+        <button onclick="leaveRoom()" class="btn-danger" style="margin-top: 20px;">مغادرة الغرفة</button>
+      </div>
+    </div>
+    
+    <!-- شاشة اللعبة -->
+    <div id="gameScreen" style="display:none;">
+      <!-- مرحلة الأسئلة -->
+      <div id="questionPhase" style="display:none;">
+        <div style="text-align: center;">
+          <div class="phase-indicator">المرحلة: أسئلة</div>
+          <h2>🎮 جولة الأسئلة</h2>
+          <div id="spyWarning"></div>
+          <div class="word-display" id="wordDisplay"></div>
+          <div class="question-player" id="currentQuestionPlayer"></div>
+          <div class="players-in-game">
+            <h4>اللاعبون:</h4>
+            <div id="gamePlayers"></div>
+          </div>
+          <button id="finishQuestionBtn" onclick="finishQuestion()" class="btn-success" style="margin-top: 30px; display: none;">خلصت السؤال</button>
+          <div id="waitingMsg" style="display: none;">
+            <div class="waiting-animation">
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="waiting-text">في انتظار الأسئلة...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- مرحلة التصويت -->
+      <div id="votingPhase" style="display:none;">
+        <div style="text-align: center;">
+          <div class="phase-indicator">المرحلة: تصويت</div>
+          <h2>🗳️ التصويت</h2>
+          <p style="margin-bottom: 20px; font-size: 16px; color: #333;">اختر من تعتقد أنه المندس:</p>
+          <div id="votingProgress" class="voting-progress" style="display: none;"></div>
+          <div class="voting-grid" id="votingGrid"></div>
+          <button id="submitVoteBtn" onclick="submitVote()" class="btn-success" style="margin-top: 30px;">تصويت</button>
+        </div>
+      </div>
+      
+      <!-- مرحلة النتيجة -->
+      <div id="resultPhase" style="display:none;">
+        <div style="text-align: center;">
+          <h2 id="resultTitle"></h2>
+          <div class="result-box">
+            <div class="result-message" id="resultMessage"></div>
+            <div class="word-reveal">
+              <strong>الكلمة الأصلية:</strong> <span id="correctWord" style="color: #333;"></span>
+            </div>
+            <div class="word-reveal">
+              <strong>كلمة المندس:</strong> <span id="spyWord" style="color: #333;"></span>
+            </div>
+            <div class="word-reveal">
+              <strong>المندس كان:</strong> <span id="spyName" style="color: #333;"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- مرحلة الانتظار -->
+      <div id="waitingPhase" style="display:none;">
+        <div style="text-align: center;">
+          <div class="waiting-animation">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="waiting-text" id="waitingPhaseMsg">الجولة القادمة تبدأ بعد قليل...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- زر الدعم والتواصل -->
+  <button class="support-btn" onclick="openSupportModal()">💬</button>
+
+  <!-- نافذة الدعم والتواصل -->
+  <div id="supportModal" class="modal-overlay" onclick="closeSupportModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeSupportModal()">✖️</button>
+      <div class="modal-title">💬 تواصل أو دعم المطور</div>
+      
+      <div class="support-section">
+        <h3>🧠 عن المطوّر</h3>
+        <p>أنا <strong>عبدالله العتيبي</strong> (23 عامًا)، طوّرت هذه اللعبة بالكامل من الصفر — من البرمجة والتصميم إلى إدارة السيرفر — بدون أي تمويل أو دعم خارجي.</p>
+        <p>المشروع متعب جدًا ويحتاج متابعة وصيانة مستمرة عشان يظل شغّال بأفضل أداء، خصوصًا مع زيادة عدد المستخدمين وتحديثات الأمان المستمرة.</p>
+        <p style="color: #667eea; font-weight: bold;">دعمك مهما كان بسيط يساعدني أواصل تطوير اللعبة وتحسينها ❤️</p>
+      </div>
+      
+      <div class="support-section">
+        <h3>🏦 الدعم من داخل المملكة (تحويل بنكي)</h3>
+        <p>الآيبان:</p>
+        <div class="iban-copy" onclick="copyIBAN()">SA6680000477608016505541</div>
+        <p style="margin-top: 10px; font-size: 13px; color: #999;">باسم: عبدالله العتيبي</p>
+        <p style="font-size: 13px; color: #667eea; font-weight: bold;">اضغط للنسخ</p>
+      </div>
+      
+      <div class="support-section">
+        <h3>💳 الدعم من خارج المملكة (PayPal)</h3>
+        <p>ادعم عبر PayPal:</p>
+        <a href="https://paypal.me/aBoDe0" target="_blank" class="support-link">👉 اضغط هنا لفتح PayPal</a>
+      </div>
+      
+      <div class="support-section">
+        <h3>📱 تواصل معي (انستقرام)</h3>
+        <p>حسابي على انستقرام:</p>
+        <a href="https://www.instagram.com/3lbod?igsh=MWhhbDFuMWdoYzM1MA%3D%3D&utm_source=qr" target="_blank" class="support-link">👉 @3lbod</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script>
+    const socket = io();
+    let playerName = '';
+    let playerId = '';
+    let currentRoomId = '';
+    let currentRoomCode = '';
+    let isJoining = false;
+    let selectedVote = null;
+    let isCurrentQuestionPlayer = false;
+    let roomType = 'private';
+    let isProcessing = false;
+    let reconnectAttempts = 0;
+    let lastRoomId = null;
+    let lastRoomCode = null;
+
+    // حفظ واستعادة اسم اللاعب
+    window.addEventListener('load', () => {
+      const savedName = localStorage.getItem('playerName');
+      if (savedName) {
+        document.getElementById('playerName').value = savedName;
+      }
+      
+      // استعادة الغرفة عند إعادة الاتصال
+      const savedRoomId = localStorage.getItem('lastRoomId');
+      const savedRoomCode = localStorage.getItem('lastRoomCode');
+      if (savedRoomId && savedRoomCode) {
+        lastRoomId = savedRoomId;
+        lastRoomCode = savedRoomCode;
+      }
+    });
+
+    function startGame() {
+      playerName = document.getElementById('playerName').value.trim();
+      if (!playerName) {
+        showError('الرجاء إدخال اسمك');
+        return;
+      }
+      localStorage.setItem('playerName', playerName);
+      playerId = Math.random().toString(36).substr(2, 9);
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('roomScreen').style.display = 'block';
+      loadRooms();
+    }
+
+    function switchTab(tab, event) {
+      event.preventDefault();
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tab).classList.add('active');
+      if (event && event.target) {
+        event.target.classList.add('active');
+      }
+      
+      if (tab === 'join') {
+        loadRooms();
+      }
+    }
+
+    function selectRoomType(type) {
+      roomType = type;
+      document.getElementById('privateBtn').classList.toggle('selected', type === 'private');
+      document.getElementById('publicBtn').classList.toggle('selected', type === 'public');
+    }
+
+    function validateRoomCode() {
+      const code = document.getElementById('roomCodeInput').value;
+      const errorMsg = document.getElementById('codeError');
+      
+      if (code.length > 0 && (code.length !== 6 || /\s/.test(code))) {
+        errorMsg.style.display = 'block';
+      } else {
+        errorMsg.style.display = 'none';
+      }
+    }
+
+    function createRoom() {
+      if (isProcessing) return;
+      
+      const roomName = document.getElementById('roomName').value.trim();
+      if (!roomName) {
+        showError('الرجاء إدخال اسم الغرفة');
+        return;
+      }
+      
+      isProcessing = true;
+      socket.emit('createRoom', {
+        roomName,
+        maxPlayers: parseInt(document.getElementById('maxPlayers').value),
+        category: document.getElementById('category').value,
+        isPublic: roomType === 'public',
+        userId: playerId,
+        displayName: playerName
+      });
+      
+      setTimeout(() => { isProcessing = false; }, 1000);
+    }
+
+    function cancelRoom() {
+      location.reload();
+    }
+
+    function leaveRoom() {
+      location.reload();
+    }
+
+    function loadRooms() {
+      fetch('/api/rooms')
+        .then(r => r.json())
+        .then(rooms => {
+          const roomsDiv = document.getElementById('roomsList');
+          if (rooms.length === 0) {
+            roomsDiv.innerHTML = '<div class="empty-message">لا توجد غرف عامة متاحة الآن</div>';
+            return;
+          }
+          roomsDiv.innerHTML = rooms.map(room => `
+            <div class="room-card" onclick="joinRoom('${room.id}')">
+              <strong>${room.name}</strong>
+              <div class="room-info">
+                👥 ${room.playerCount}/${room.maxPlayers} لاعبين | 🎯 ${getCategoryName(room.category)}
+              </div>
+            </div>
+          `).join('');
+        })
+        .catch(err => console.error('خطأ:', err));
+    }
+
+    function getCategoryName(cat) {
+      const names = {
+        'mix': 'المكس',
+        'saudi_league': 'دوري السعودي',
+        'foreign_players': 'اللاعبين الأجانب',
+        'cars': 'السيارات',
+        'food_detailed': 'الطعام',
+        'drinks': 'المشروبات',
+        'objects': 'الجمادات',
+        'video_games': 'الألعاب',
+        'restaurants': 'المطاعم',
+        'cafes': 'المقاهي'
+      };
+      return names[cat] || cat;
+    }
+
+    function joinRoom(roomId) {
+      if (isProcessing) return;
+      isProcessing = true;
+      socket.emit('joinRoom', {
+        roomId,
+        roomCode: null,
+        userId: playerId,
+        displayName: playerName
+      });
+      setTimeout(() => { isProcessing = false; }, 1000);
+    }
+
+    function joinFromCode() {
+      if (isProcessing) return;
+      
+      const code = document.getElementById('roomCodeInput').value.toUpperCase().trim();
+      if (!code || code.length !== 6 || /\s/.test(code)) {
+        showError('الرجاء إدخال رمز صحيح');
+        return;
+      }
+      
+      isProcessing = true;
+      socket.emit('joinRoom', {
+        roomId: null,
+        roomCode: code,
+        userId: playerId,
+        displayName: playerName
+      });
+      setTimeout(() => { isProcessing = false; }, 1000);
+    }
+
+    function copyRoomCode() {
+      const code = currentRoomCode;
+      navigator.clipboard.writeText(code).then(() => {
+        showSuccess('✅ تم نسخ الرمز: ' + code);
+      }).catch(() => {
+        alert('الرمز: ' + code);
+      });
+    }
+
+    function copyIBAN() {
+      const iban = 'SA6680000477608016505541';
+      navigator.clipboard.writeText(iban).then(() => {
+        showSuccess('✅ تم نسخ الآيبان');
+      }).catch(() => {
+        alert('الآيبان: ' + iban);
+      });
+    }
+
+    function startGameSession() {
+      if (isProcessing) return;
+      isProcessing = true;
+      socket.emit('startGame', {});
+      setTimeout(() => { isProcessing = false; }, 1000);
+    }
+
+    function finishQuestion() {
+      if (isProcessing) return;
+      isProcessing = true;
+      document.getElementById('finishQuestionBtn').disabled = true;
+      socket.emit('finishQuestion', {});
+      setTimeout(() => { isProcessing = false; }, 1000);
+    }
+
+    function submitVote() {
+      if (!selectedVote) {
+        showError('الرجاء اختيار لاعب');
+        return;
+      }
+      if (isProcessing) return;
+      
+      isProcessing = true;
+      document.getElementById('submitVoteBtn').disabled = true;
+      socket.emit('vote', {
+        voterId: playerId,
+        targetId: selectedVote
+      });
+      setTimeout(() => { isProcessing = false; }, 1000);
+    }
+
+    function showError(msg) {
+      const errorDiv = document.getElementById('errorMsg');
+      errorDiv.textContent = '❌ ' + msg;
+      errorDiv.style.display = 'block';
+      setTimeout(() => {
+        errorDiv.style.display = 'none';
+      }, 5000);
+    }
+
+    function showSuccess(msg) {
+      const successDiv = document.getElementById('successMsg');
+      successDiv.textContent = msg;
+      successDiv.style.display = 'block';
+      setTimeout(() => {
+        successDiv.style.display = 'none';
+      }, 5000);
+    }
+
+    function openSupportModal() {
+      document.getElementById('supportModal').classList.add('active');
+    }
+
+    function closeSupportModal(event) {
+      if (!event || event.target.id === 'supportModal') {
+        document.getElementById('supportModal').classList.remove('active');
+      }
+    }
+
+    // ============================================
+    // Socket.io Events
+    // ============================================
+
+    socket.on('roomCreated', (data) => {
+      currentRoomId = data.roomId;
+      currentRoomCode = data.roomCode;
+      lastRoomId = data.roomId;
+      lastRoomCode = data.roomCode;
+      localStorage.setItem('lastRoomId', data.roomId);
+      localStorage.setItem('lastRoomCode', data.roomCode);
+      document.getElementById('roomCodeDisplay').textContent = data.roomCode;
+      document.getElementById('roomCreatedScreen').style.display = 'block';
+      document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+      updatePlayersList(data.room.players);
+      showSuccess('✅ تم إنشاء الغرفة بنجاح!');
+    });
+
+    socket.on('joinedRoom', (data) => {
+      currentRoomId = data.roomId;
+      currentRoomCode = data.roomCode;
+      lastRoomId = data.roomId;
+      lastRoomCode = data.roomCode;
+      localStorage.setItem('lastRoomId', data.roomId);
+      localStorage.setItem('lastRoomCode', data.roomCode);
+      document.getElementById('joinedRoomCode').textContent = data.roomCode;
+      document.getElementById('joinedRoomScreen').style.display = 'block';
+      document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+      updateJoinedPlayersList(data.players);
+      showSuccess('✅ انضممت للغرفة بنجاح!');
+    });
+
+    socket.on('playerJoined', (data) => {
+      updatePlayersList(data.players);
+      updateJoinedPlayersList(data.players);
+      showSuccess('👤 انضم لاعب جديد!');
+    });
+
+    socket.on('playerLeft', (data) => {
+      updatePlayersList(data.players);
+      updateJoinedPlayersList(data.players);
+    });
+
+    socket.on('gameStarted', (data) => {
+      document.getElementById('roomScreen').style.display = 'none';
+      document.getElementById('gameScreen').style.display = 'block';
+      document.getElementById('questionPhase').style.display = 'block';
+      document.getElementById('votingPhase').style.display = 'none';
+      document.getElementById('resultPhase').style.display = 'none';
+      document.getElementById('waitingPhase').style.display = 'none';
+      
+      document.getElementById('wordDisplay').textContent = data.word;
+      
+      const currentPlayerIndex = data.players.findIndex(p => p.id === playerId);
+      isCurrentQuestionPlayer = data.currentQuestionPlayer === currentPlayerIndex;
+      
+      if (isCurrentQuestionPlayer) {
+        document.getElementById('finishQuestionBtn').style.display = 'block';
+        document.getElementById('finishQuestionBtn').disabled = false;
+        document.getElementById('waitingMsg').style.display = 'none';
+        document.getElementById('currentQuestionPlayer').textContent = `🎤 أنت الآن تسأل`;
+      } else {
+        document.getElementById('finishQuestionBtn').style.display = 'none';
+        document.getElementById('waitingMsg').style.display = 'block';
+        document.getElementById('currentQuestionPlayer').textContent = `${data.players[data.currentQuestionPlayer].name} يسأل الآن`;
+      }
+      
+      if (data.isSpy) {
+        document.getElementById('spyWarning').innerHTML = '<div class="spy-badge">⚠️ أنت المندس! احذر!</div>';
+      } else {
+        document.getElementById('spyWarning').innerHTML = '';
+      }
+      
+      document.getElementById('gamePlayers').innerHTML = data.players
+        .map((p, i) => `<div class="player-badge ${i === data.currentQuestionPlayer ? 'current' : ''}">${p.name}</div>`)
+        .join('');
+    });
+
+    socket.on('nextQuestion', (data) => {
+      const currentPlayerIndex = data.players.findIndex(p => p.id === playerId);
+      isCurrentQuestionPlayer = data.currentQuestionPlayer === currentPlayerIndex;
+      
+      if (isCurrentQuestionPlayer) {
+        document.getElementById('finishQuestionBtn').style.display = 'block';
+        document.getElementById('finishQuestionBtn').disabled = false;
+        document.getElementById('waitingMsg').style.display = 'none';
+        document.getElementById('currentQuestionPlayer').textContent = `🎤 أنت الآن تسأل`;
+      } else {
+        document.getElementById('finishQuestionBtn').style.display = 'none';
+        document.getElementById('waitingMsg').style.display = 'block';
+        document.getElementById('currentQuestionPlayer').textContent = `${data.players[data.currentQuestionPlayer].name} يسأل الآن`;
+      }
+      
+      document.getElementById('gamePlayers').innerHTML = data.players
+        .map((p, i) => `<div class="player-badge ${i === data.currentQuestionPlayer ? 'current' : ''}">${p.name}</div>`)
+        .join('');
+    });
+
+    socket.on('startVoting', (data) => {
+      document.getElementById('questionPhase').style.display = 'none';
+      document.getElementById('votingPhase').style.display = 'block';
+      document.getElementById('resultPhase').style.display = 'none';
+      document.getElementById('waitingPhase').style.display = 'none';
+      
+      selectedVote = null;
+      document.getElementById('submitVoteBtn').disabled = false;
+      document.getElementById('votingProgress').style.display = 'none';
+      
+      document.getElementById('votingGrid').innerHTML = data.players
+        .map(p => `
+          <button class="vote-btn" onclick="selectVote('${p.id}', this)">
+            ${p.name}
+          </button>
+        `)
+        .join('');
+    });
+
+    socket.on('votingProgress', (data) => {
+      const progressDiv = document.getElementById('votingProgress');
+      progressDiv.textContent = `${data.votedCount} من ${data.totalPlayers} لاعبين صوتوا`;
+      progressDiv.style.display = 'block';
+    });
+
+    function selectVote(playerId, element) {
+      document.querySelectorAll('.vote-btn').forEach(btn => btn.classList.remove('selected'));
+      element.classList.add('selected');
+      selectedVote = playerId;
+    }
+
+    socket.on('gameResult', (data) => {
+      document.getElementById('questionPhase').style.display = 'none';
+      document.getElementById('votingPhase').style.display = 'none';
+      document.getElementById('resultPhase').style.display = 'block';
+      document.getElementById('waitingPhase').style.display = 'none';
+      
+      if (data.isSpyEliminated) {
+        document.getElementById('resultTitle').textContent = '🎉 تم اكتشاف المندس!';
+        document.getElementById('resultMessage').textContent = `تم إطاحة ${data.eliminatedPlayer.name} وكان هو المندس فعلاً! الفريق فاز!`;
+      } else {
+        document.getElementById('resultTitle').textContent = '😂 المندس انجرح!';
+        document.getElementById('resultMessage').textContent = `تم إطاحة ${data.eliminatedPlayer.name} لكنه لم يكن المندس! المندس فاز!`;
+      }
+      
+      document.getElementById('correctWord').textContent = data.word;
+      document.getElementById('spyWord').textContent = data.spyWord;
+      document.getElementById('spyName').textContent = data.spyPlayer;
+    });
+
+    socket.on('waitingForNextRound', (data) => {
+      document.getElementById('questionPhase').style.display = 'none';
+      document.getElementById('votingPhase').style.display = 'none';
+      document.getElementById('resultPhase').style.display = 'none';
+      document.getElementById('waitingPhase').style.display = 'block';
+      document.getElementById('waitingPhaseMsg').textContent = data.message;
+    });
+
+    socket.on('gameEnded', (data) => {
+      document.getElementById('gameScreen').style.display = 'none';
+      document.getElementById('roomScreen').style.display = 'block';
+      showError(data.message);
+    });
+
+    socket.on('roomClosed', (data) => {
+      document.getElementById('gameScreen').style.display = 'none';
+      document.getElementById('roomScreen').style.display = 'block';
+      showError(data.message);
+    });
+
+    socket.on('error', (data) => {
+      showError(data.message);
+      isProcessing = false;
+    });
+
+    socket.on('disconnect', () => {
+      document.getElementById('reconnectBanner').classList.add('show');
+    });
+
+    socket.on('connect', () => {
+      reconnectAttempts = 0;
+      document.getElementById('reconnectBanner').classList.remove('show');
+      showSuccess('✅ تم استعادة الاتصال');
+      
+      // محاولة العودة للغرفة السابقة
+      if (lastRoomId && lastRoomCode && !currentRoomId) {
+        socket.emit('joinRoom', {
+          roomId: lastRoomId,
+          roomCode: lastRoomCode,
+          userId: playerId,
+          displayName: playerName
+        });
+      }
+    });
+
+    function updatePlayersList(players) {
+      const list = document.getElementById('playersList');
+      list.innerHTML = players.map(p => `<div class="player-item">👤 ${p.name}</div>`).join('');
+    }
+
+    function updateJoinedPlayersList(players) {
+      const list = document.getElementById('joinedPlayersList');
+      list.innerHTML = players.map(p => `<div class="player-item">👤 ${p.name}</div>`).join('');
+    }
+  </script>
+</body>
+</html>
