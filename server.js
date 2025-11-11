@@ -678,37 +678,53 @@ function handleFinishQuestion(ws, userId, data) {
     clearTimeout(room.questionTimer);
     room.questionTimer = null;
   }
+// في server.js - ضمن دالة handleFinishQuestion
+// ... (الكود الذي يأتي قبل هذا الجزء، مثل التحقق من الغرفة واللاعب)
 
-  // ✅ إصلاح: إذا كان المندس، لا نسجل سؤاله، فقط نمرر الدور
-  if (!player.isSpy) {
-    // تسجيل أن اللاعب العادي قد سأل
-    if (!room.playersAsked) {
-      room.playersAsked = new Set();
-    }
-    room.playersAsked.add(userId);
+// 1. تسجيل سؤال اللاعب العادي فقط
+if (!player.isSpy) {
+  // تسجيل أن اللاعب العادي قد سأل
+  if (!room.playersAsked) {
+    room.playersAsked = new Set();
   }
+  room.playersAsked.add(userId);
+}
+
+// 2. التحقق من اكتمال جولة الأسئلة
+const normalPlayersCount = room.spyId ? room.players.length - 1 : room.players.length;
+
+if (room.playersAsked.size >= normalPlayersCount) {
+  // 🟢🟢 نهاية مرحلة الأسئلة، الانتقال للتصويت 🟢🟢
   
-  // الانتقال للاعب التالي (سواء كان عاديًا أو مندسًا)
+  room.gameState = 'voting';
+  room.playersAsked = new Set(); // إعادة تعيين
+  room.votes = []; // إعادة تعيين الأصوات
+
+  // إعادة تعيين حالة التصويت لجميع اللاعبين
+  room.players.forEach(pid => {
+    const p = players.get(pid);
+    if (p) p.hasVoted = false;
+  });
+
+  // لا نقوم بتغيير currentPlayerIndex لأنه انتهى دور الأسئلة
   
-  // الانتقال للاعب التالي
+  broadcastToRoom(room.id, 'votingPhase', { players: getPlayersInRoom(room.id) });
+  console.log(`🗳️ الغرفة ${room.roomCode} دخلت مرحلة التصويت.`);
+
+} else {
+  // 🟠🟠 الجولة لم تنتهِ، الانتقال للاعب التالي 🟠🟠
+  
   room.currentPlayerIndex = (room.currentPlayerIndex + 1) % room.players.length;
-  
-  // التحقق من أن جميع اللاعبين العاديين قد سألوا (بدون المندس)
-  const normalPlayersCount = room.spyId ? room.players.length - 1 : room.players.length;
-  if (room.playersAsked.size >= normalPlayersCount) {
-    // نهاية مرحلة الأسئلة، الانتقال للتصويت
-    room.gameState = 'voting';
-    room.playersAsked = new Set(); // إعادة تعيين
-    room.votes = []; // إعادة تعيين الأصوات
-    
-    // إعادة تعيين حالة التصويت لجميع اللاعبين
-    room.players.forEach(pid => {
-      const p = players.get(pid);
-      if (p) p.hasVoted = false;
-    });
-    
-    broadcastToRoom(room.id, 'votingPhase', { players: getPlayersInRoom(room.id) });
-    console.log(`🗳️ الغرفة ${room.roomCode} دخلت مرحلة التصويت.`);
+
+  // إرسال تحديث بالدور الجديد
+  broadcastToRoom(room.id, 'turnChange', {
+    currentPlayerId: room.players[room.currentPlayerIndex],
+    players: getPlayersInRoom(room.id)
+  });
+}
+
+// rooms.set(room.id, room); // تأكد أن لديك هذا السطر في نهاية الدالة لحفظ حالة الغرفة
+
     
     // بدء مؤقت التصويت
     startVotingTimer(room);
