@@ -667,77 +667,61 @@ function handleFinishQuestion(ws, userId, data) {
   const room = players.get(userId)?.roomId ? rooms.get(players.get(userId).roomId) : null;
   const player = players.get(userId);
   if (!room || room.gameState !== 'inGame' || !player) return;
-  
+
   // التأكد من أن اللاعب الحالي هو من ينهي السؤال
   if (room.players[room.currentPlayerIndex] !== userId) {
     return sendToPlayer(userId, 'error', { message: 'ليس دورك لإنهاء السؤال.' });
   }
-  
+
   // إلغاء المؤقت الحالي
   if (room.questionTimer) {
     clearTimeout(room.questionTimer);
     room.questionTimer = null;
   }
-// في server.js - ضمن دالة handleFinishQuestion
-// ... (الكود الذي يأتي قبل هذا الجزء، مثل التحقق من الغرفة واللاعب)
 
-// 1. تسجيل سؤال اللاعب العادي فقط
-if (!player.isSpy) {
-  // تسجيل أن اللاعب العادي قد سأل
+  // ✅ التعديل الرئيسي: تسجيل أن اللاعب قد سأل (يشمل المندس الآن)
   if (!room.playersAsked) {
     room.playersAsked = new Set();
   }
   room.playersAsked.add(userId);
-}
 
-// 2. التحقق من اكتمال جولة الأسئلة
-const normalPlayersCount = room.spyId ? room.players.length - 1 : room.players.length;
+  // التحقق من أن جميع اللاعبين قد سألوا (بما فيهم المندس)
+  const totalPlayersCount = room.players.length; // ✅ نحسب الجميع بما فيهم المندس
 
-if (room.playersAsked.size >= normalPlayersCount) {
-  // 🟢🟢 نهاية مرحلة الأسئلة، الانتقال للتصويت 🟢🟢
-  
-  room.gameState = 'voting';
-  room.playersAsked = new Set(); // إعادة تعيين
-  room.votes = []; // إعادة تعيين الأصوات
+  if (room.playersAsked.size >= totalPlayersCount) {
+    // 🟢🟢 نهاية مرحلة الأسئلة، الانتقال للتصويت 🟢🟢
 
-  // إعادة تعيين حالة التصويت لجميع اللاعبين
-  room.players.forEach(pid => {
-    const p = players.get(pid);
-    if (p) p.hasVoted = false;
-  });
+    room.gameState = 'voting';
+    room.playersAsked = new Set(); // إعادة تعيين
+    room.votes = []; // إعادة تعيين الأصوات
 
-  // لا نقوم بتغيير currentPlayerIndex لأنه انتهى دور الأسئلة
-  
-  broadcastToRoom(room.id, 'votingPhase', { players: getPlayersInRoom(room.id) });
-  console.log(`🗳️ الغرفة ${room.roomCode} دخلت مرحلة التصويت.`);
+    // إعادة تعيين حالة التصويت لجميع اللاعبين
+    room.players.forEach(pid => {
+      const p = players.get(pid);
+      if (p) p.hasVoted = false;
+    });
 
-} else {
-  // 🟠🟠 الجولة لم تنتهِ، الانتقال للاعب التالي 🟠🟠
-  
-  room.currentPlayerIndex = (room.currentPlayerIndex + 1) % room.players.length;
+    broadcastToRoom(room.id, 'votingPhase', { players: getPlayersInRoom(room.id) });
+    console.log(`🗳️ الغرفة ${room.roomCode} دخلت مرحلة التصويت.`);
 
-  // إرسال تحديث بالدور الجديد
-  broadcastToRoom(room.id, 'turnChange', {
-    currentPlayerId: room.players[room.currentPlayerIndex],
-    players: getPlayersInRoom(room.id)
-  });
-}
-
-// rooms.set(room.id, room); // تأكد أن لديك هذا السطر في نهاية الدالة لحفظ حالة الغرفة
-
-    
     // بدء مؤقت التصويت
-    startVotingTimer(room);
+    // تأكد من وجود هذه الدالة لديك
+    startVotingTimer(room); 
+
   } else {
-    // الانتقال للسؤال التالي
+    // 🟠🟠 الجولة لم تنتهِ، الانتقال للاعب التالي 🟠🟠
+
+    room.currentPlayerIndex = (room.currentPlayerIndex + 1) % room.players.length;
+
+    // إرسال تحديث بالدور الجديد
     broadcastToRoom(room.id, 'nextQuestion', {
       currentPlayer: room.players[room.currentPlayerIndex]
     });
-    
+
     // بدء مؤقت جديد (2 دقيقة)
     startQuestionTimer(room);
   }
-  
+
   rooms.set(room.id, room);
 }
 
