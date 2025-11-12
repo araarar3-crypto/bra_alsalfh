@@ -271,75 +271,71 @@ function selectRandomWord(category) {
  * @param {string} correctWord 
  * @returns {Array<string>}
  */
-	function generateChallengeWords(category, correctWord) {
-	  const categoryWords = words[category];
-	  if (!categoryWords) return [correctWord];
-	
-	  // 1. تحديد الفئة الوصفية (spyWord) للكلمة الصحيحة
-	  const correctWordObject = categoryWords.find(w => w.word === correctWord);
-	  const correctSpyWord = correctWordObject ? correctWordObject.spyWord : null;
-	
-	  let incorrectWords = [];
-	
-	  if (correctSpyWord) {
-	    // 2. تجميع الكلمات التي تشترك في نفس الفئة الوصفية (spyWord)
-	    const similarWords = categoryWords
-	      .filter(w => w.spyWord === correctSpyWord && w.word !== correctWord)
-	      .map(w => w.word);
-	      
-	    // 3. تجميع الكلمات الأخرى من نفس الفئة (category)
-	    const otherWords = categoryWords
-	      .filter(w => w.spyWord !== correctSpyWord && w.word !== correctWord)
-	      .map(w => w.word);
-	      
-	    // 4. اختيار الكلمات الخاطئة: نفضل الكلمات المشابهة أولاً
-	    const shuffledSimilar = similarWords.sort(() => 0.5 - Math.random());
-	    const shuffledOther = otherWords.sort(() => 0.5 - Math.random());
-	    
-	    // نأخذ ما يصل إلى 5 كلمات مشابهة
-	    const similarCount = Math.min(5, shuffledSimilar.length);
-	    incorrectWords.push(...shuffledSimilar.slice(0, similarCount));
-	    
-	    // نكمل العدد المتبقي (7 - similarCount) من الكلمات الأخرى
-	    const remainingCount = 7 - incorrectWords.length;
-	    incorrectWords.push(...shuffledOther.slice(0, remainingCount));
-	    
-	    // إذا لم نصل إلى 7 كلمات، نأخذ ما تبقى من الكلمات المشابهة (إذا كان هناك المزيد)
-	    if (incorrectWords.length < 7) {
-	      const moreSimilar = shuffledSimilar.slice(similarCount);
-	      incorrectWords.push(...moreSimilar.slice(0, 7 - incorrectWords.length));
-	    }
-	    
-	    // إذا لم نصل إلى 7 كلمات، نأخذ ما تبقى من الكلمات الأخرى (إذا كان هناك المزيد)
-	    if (incorrectWords.length < 7) {
-	      const moreOther = shuffledOther.slice(remainingCount);
-	      incorrectWords.push(...moreOther.slice(0, 7 - incorrectWords.length));
-	    }
-	    
-	    // إذا لم نصل إلى 7 كلمات بعد، نأخذ أي كلمات أخرى من الفئات الأخرى (للتأكد من وجود 7)
-	    // (هذا الجزء غير مطلوب حالياً لأن الكلمات مأخوذة من نفس الفئة، ولكن يمكن إضافته كاحتياط)
-	    
-	  } else {
-	    // إذا لم نجد فئة وصفية، نعود للمنطق القديم (اختيار 7 كلمات عشوائية من نفس الفئة)
-	    const allWords = categoryWords.map(w => w.word);
-	    const allIncorrect = allWords.filter(w => w !== correctWord);
-	    const shuffledIncorrect = allIncorrect.sort(() => 0.5 - Math.random());
-	    incorrectWords = shuffledIncorrect.slice(0, 7);
-	  }
-	  
-	  // التأكد من أن لدينا 7 كلمات خاطئة على الأكثر
+function generateChallengeWords(category, correctWord) {
+  const categoryWords = words[category];
+  if (!categoryWords) return [correctWord];
+
+  // 1. تحديد الفئة الوصفية (spyWord) للكلمة الصحيحة
+  const correctWordObject = categoryWords.find(w => w.word === correctWord);
+  const correctSpyWord = correctWordObject ? correctWordObject.spyWord : null;
+
+  let incorrectWords = [];
+
+  if (correctSpyWord) {
+    // 2. تجميع الكلمات التي تشترك في نفس الفئة الوصفية (spyWord)
+    const similarWords = categoryWords
+      .filter(w => w.spyWord === correctSpyWord && w.word !== correctWord)
+      .map(w => w.word);
+      
+    // 3. تجميع الكلمات الأخرى من نفس الفئة (category)
+    const otherWords = categoryWords
+      .filter(w => w.spyWord !== correctSpyWord && w.word !== correctWord)
+      .map(w => w.word);
+      
+    // 4. اختيار الكلمات الخاطئة: نفضل الكلمات المشابهة أولاً
+    const shuffledSimilar = similarWords.sort(() => 0.5 - Math.random());
+    const shuffledOther = otherWords.sort(() => 0.5 - Math.random());
+    
+    // نأخذ ما يصل إلى 5 كلمات مشابهة
+    const similarCount = Math.min(5, shuffledSimilar.length);
+    incorrectWords.push(...shuffledSimilar.slice(0, similarCount));
+    
+    // نكمل العدد المتبقي (7 - similarCount) من الكلمات الأخرى
+    const remainingCount = 7 - incorrectWords.length;
+    incorrectWords.push(...shuffledOther.slice(0, remainingCount));
+    
+    // إذا لم نصل إلى 7 كلمات، نأخذ ما تبقى من الكلمات المشابهة (إذا كان هناك المزيد)
+    if (incorrectWords.length < 7) {
+      const moreSimilar = shuffledSimilar.slice(similarCount);
+      incorrectWords.push(...moreSimilar.slice(0, 7 - incorrectWords.length));
+    }
+    
+    // إذا لم نصل إلى 7 كلمات، نأخذ ما تبقى من الكلمات الأخرى (إذا كان هناك المزيد)
+    if (incorrectWords.length < 7) {
+      const moreOther = shuffledOther.slice(remainingCount);
+      incorrectWords.push(...moreOther.slice(0, 7 - incorrectWords.length));
+    }
+  } else {
+    // إذا لم نجد فئة وصفية، نعود للمنطق القديم (اختيار 7 كلمات عشوائية من نفس الفئة)
+    const allWords = categoryWords.map(w => w.word);
+    const allIncorrect = allWords.filter(w => w !== correctWord);
+    const shuffledIncorrect = allIncorrect.sort(() => 0.5 - Math.random());
+    incorrectWords = shuffledIncorrect.slice(0, 7);
+  }
+  
+  // التأكد من أن لدينا 7 كلمات خاطئة على الأكثر
   if (incorrectWords.length === 0) {
     incorrectWords = [correctWord + "_fake"];
   }
 
-	  incorrectWords = incorrectWords.slice(0, 7);
-	  
-	  // إضافة الكلمة الصحيحة
-	  const challengeWords = [...incorrectWords, correctWord];
-	  
-	  // خلط الكلمات
-	  return challengeWords.sort(() => 0.5 - Math.random());
-	}
+  incorrectWords = incorrectWords.slice(0, 7);
+  
+  // إضافة الكلمة الصحيحة
+  const challengeWords = [...incorrectWords, correctWord];
+  
+  // خلط الكلمات
+  return challengeWords.sort(() => 0.5 - Math.random());
+}
 
 // ============================================
 // معالجات الأحداث
@@ -376,7 +372,7 @@ function handleCreateRoom(ws, userId, data) {
     category,
     isPrivate: isPrivate || false,
     players: [userId],
-    gameState: 'waiting', // waiting, inGame, voting, challenge
+    gameState: 'waiting', // waiting, inGame, voting, challenge, finished
     currentRound: 0,
     currentWord: null,
     spyWord: null,
@@ -455,11 +451,13 @@ function handleJoinRoom(ws, userId, data) {
     hasVoted: false
   });
 
+  const creatorId = room.players.find(pid => players.get(pid)?.isCreator) || room.players[0];
+
   sendToPlayer(userId, 'joinedRoom', {
     userId: userId,
     roomId: room.id,
     roomCode: room.roomCode,
-    creatorId: players.get(room.players[0]).isCreator ? room.players[0] : null,
+    creatorId,
     players: getPlayersInRoom(room.id)
   });
   
@@ -795,7 +793,7 @@ function handleVote(ws, userId, data) {
         words: challengeWords,
         correctWord: room.currentWord,
         spyAnswer: null,
-        status: null // win, lose
+        status: null // win, lose, timeout
       };
       
       // إرسال التحدي للمندس
@@ -822,8 +820,7 @@ function handleVote(ws, userId, data) {
             isSpyEliminated: true,
             challenge: {
               status: 'timeout',
-              chosenWord: null,
-              correctWord: room.currentWord
+              chosenWord: null
             }
           });
           console.log(`⏰ انتهى وقت التحدي، فاز اللاعبون العاديون.`);
@@ -831,35 +828,29 @@ function handleVote(ws, userId, data) {
       }, 30000); // 30 ثانية
       
       console.log(`🚨 المندس ${players.get(room.spyId).name} انكشف! بدأ تحدي الكلمات.`);
-      
     } else {
-      // المندس لم ينكشف، نهاية الجولة
+      // تم التصويت على لاعب عادي
       room.gameState = 'finished';
+      const spyPlayer = players.get(room.spyId);
       broadcastToRoom(room.id, 'roundResult', {
         winner: 'spy',
         word: room.currentWord,
         spyWord: room.spyWord,
-        spyPlayer: players.get(room.spyId).name,
-        isSpyEliminated: false
+        spyPlayer: spyPlayer.name,
+        isSpyEliminated: false,
+        eliminatedPlayer: players.get(votedPlayerId).name,
+        tie: false
       });
-      console.log(`🎉 فاز المندس ${players.get(room.spyId).name} بالتصويت.`);
+      console.log(`😈 فشلوا في كشف المندس! فاز ${spyPlayer.name}.`);
     }
     
-    // إعادة تعيين حالة التصويت لجميع اللاعبين
-    room.players.forEach(pid => {
-      const p = players.get(pid);
-      if (p) p.hasVoted = false;
-    });
+    rooms.set(room.id, room);
   }
-  
-  rooms.set(room.id, room);
 }
 
-// دالة بدء مؤقت التصويت
 function startVotingTimer(room) {
-  const VOTING_TIMEOUT = 60000; // دقيقة واحدة
+  const VOTING_TIMEOUT = 120000; // 2 دقيقة
   
-  // إلغاء المؤقت السابق إن وجد
   if (room.votingTimer) {
     clearTimeout(room.votingTimer);
   }
@@ -867,23 +858,36 @@ function startVotingTimer(room) {
   room.votingTimer = setTimeout(() => {
     if (room.gameState !== 'voting') return;
     
-    // احسب الأصوات الحالية
+    // إذا انتهى وقت التصويت قبل أن يصوت الجميع
+    console.log(`⏰ انتهى وقت التصويت في الغرفة ${room.roomCode}.`);
+    
+    // نفس منطق حساب الأصوات مع من صوت فقط
+    if (room.votes.length === 0) {
+      // ما حد صوت: فوز تلقائي للمندس
+      room.gameState = 'finished';
+      broadcastToRoom(room.id, 'roundResult', {
+        winner: 'spy',
+        word: room.currentWord,
+        spyWord: room.spyWord,
+        spyPlayer: players.get(room.spyId).name,
+        isSpyEliminated: false,
+        tie: false,
+        timeout: true
+      });
+      rooms.set(room.id, room);
+      return;
+    }
+
     const voteCounts = room.votes.reduce((acc, vote) => {
       acc[vote.targetId] = (acc[vote.targetId] || 0) + 1;
       return acc;
     }, {});
     
-    if (Object.keys(voteCounts).length === 0) {
-      // لم يصوت أحد، اختر عشوائياً
-      const randomPlayer = room.players[Math.floor(Math.random() * room.players.length)];
-      voteCounts[randomPlayer] = 1;
-    }
-    
     const maxVotes = Math.max(...Object.values(voteCounts));
     const playersWithMaxVotes = Object.keys(voteCounts).filter(id => voteCounts[id] === maxVotes);
     
-    // إذا كان هناك تعادل، يفوز المندس تلقائياً
     if (playersWithMaxVotes.length > 1) {
+      // تعادل: فوز المندس
       room.gameState = 'finished';
       broadcastToRoom(room.id, 'roundResult', {
         winner: 'spy',
@@ -894,17 +898,14 @@ function startVotingTimer(room) {
         tie: true,
         timeout: true
       });
-      console.log(`⏰ انتهى وقت التصويت! تعادل - فاز المندس ${players.get(room.spyId).name} تلقائياً.`);
       rooms.set(room.id, room);
       return;
     }
-    
+
     const votedPlayerId = playersWithMaxVotes[0];
-    
     if (votedPlayerId === room.spyId) {
-      // المندس انكشف، الآن تحدي الكلمات
+      // نفس منطق تحدي الكلمات إذا الوقت انتهى أثناء التصويت
       room.gameState = 'challenge';
-      
       const challengeWords = generateChallengeWords(room.category, room.currentWord);
       room.challenge = {
         spyId: room.spyId,
@@ -913,16 +914,12 @@ function startVotingTimer(room) {
         spyAnswer: null,
         status: null
       };
-      
-      sendToPlayer(room.spyId, 'spyChallenge', {
-        words: challengeWords
-      });
-      
+
+      sendToPlayer(room.spyId, 'spyChallenge', { words: challengeWords });
       room.players.filter(pid => pid !== room.spyId).forEach(pid => {
         sendToPlayer(pid, 'waitingForChallenge', { spyName: players.get(room.spyId).name });
       });
-      
-      // ✅ إضافة مؤقت للتحدي (30 ثانية)
+
       room.challengeTimer = setTimeout(() => {
         if (room.gameState === 'challenge' && room.challenge && room.challenge.status === null) {
           room.challenge.status = 'timeout';
@@ -935,55 +932,42 @@ function startVotingTimer(room) {
             isSpyEliminated: true,
             challenge: {
               status: 'timeout',
-              chosenWord: null,
-              correctWord: room.currentWord
+              chosenWord: null
             }
           });
-          console.log(`⏰ انتهى وقت التحدي، فاز اللاعبون العاديون.`);
         }
       }, 30000);
-      
-      console.log(`⏰ انتهى وقت التصويت! المندس ${players.get(room.spyId).name} انكشف! بدأ تحدي الكلمات.`);
     } else {
-      // المندس لم ينكشف
       room.gameState = 'finished';
+      const spyPlayer = players.get(room.spyId);
       broadcastToRoom(room.id, 'roundResult', {
         winner: 'spy',
         word: room.currentWord,
         spyWord: room.spyWord,
-        spyPlayer: players.get(room.spyId).name,
+        spyPlayer: spyPlayer.name,
         isSpyEliminated: false,
+        eliminatedPlayer: players.get(votedPlayerId).name,
+        tie: false,
         timeout: true
       });
-      console.log(`⏰ انتهى وقت التصويت! فاز المندس ${players.get(room.spyId).name}.`);
     }
-    
-    // إعادة تعيين حالة التصويت
-    room.players.forEach(pid => {
-      const p = players.get(pid);
-      if (p) p.hasVoted = false;
-    });
-    
+
     rooms.set(room.id, room);
   }, VOTING_TIMEOUT);
 }
 
 function handleSpyChallengeAnswer(ws, userId, data) {
-  const room = players.get(userId)?.roomId ? rooms.get(players.get(userId).roomId) : null;
-  if (!room || room.gameState !== 'challenge' || room.spyId !== userId) return;
+  const player = players.get(userId);
+  if (!player || !player.roomId) return;
   
+  const room = rooms.get(player.roomId);
+  if (!room || room.gameState !== 'challenge' || !room.challenge) return;
+  if (room.spyId !== userId) return;
+
   const { chosenWord } = data;
-  
-  // ✅ إلغاء مؤقت التحدي
-  if (room.challengeTimer) {
-    clearTimeout(room.challengeTimer);
-    room.challengeTimer = null;
-  }
-  
   room.challenge.spyAnswer = chosenWord;
-  
+
   if (chosenWord === room.challenge.correctWord) {
-    // المندس فاز بالتحدي
     room.challenge.status = 'win';
     room.gameState = 'finished';
     broadcastToRoom(room.id, 'roundResult', {
@@ -991,16 +975,14 @@ function handleSpyChallengeAnswer(ws, userId, data) {
       word: room.currentWord,
       spyWord: room.spyWord,
       spyPlayer: players.get(room.spyId).name,
-      isSpyEliminated: true, // تم كشفه لكنه فاز بالتحدي
+      isSpyEliminated: false,
       challenge: {
         status: 'win',
-        chosenWord,
-        correctWord: room.currentWord
+        chosenWord
       }
     });
-    console.log(`🎉 فاز المندس ${players.get(room.spyId).name} بتحدي الكلمات.`);
+    console.log(`😈 المندس فاز في تحدي الكلمات!`);
   } else {
-    // المندس خسر التحدي
     room.challenge.status = 'lose';
     room.gameState = 'finished';
     broadcastToRoom(room.id, 'roundResult', {
@@ -1011,228 +993,128 @@ function handleSpyChallengeAnswer(ws, userId, data) {
       isSpyEliminated: true,
       challenge: {
         status: 'lose',
-        chosenWord,
-        correctWord: room.currentWord
+        chosenWord
       }
     });
-    console.log(`❌ خسر المندس ${players.get(room.spyId).name} تحدي الكلمات.`);
+    console.log(`✅ اللاعبين العاديين فازوا! المندس فشل في اختيار الكلمة الصحيحة.`);
   }
-  
+
+  if (room.challengeTimer) {
+    clearTimeout(room.challengeTimer);
+    room.challengeTimer = null;
+  }
+
   rooms.set(room.id, room);
+}
+
+function handleLeaveRoom(ws, userId, data) {
+  const player = players.get(userId);
+  if (!player || !player.roomId) {
+    players.delete(userId);
+    return;
+  }
+
+  const room = rooms.get(player.roomId);
+  if (!room) {
+    players.delete(userId);
+    return;
+  }
+
+  // إزالة اللاعب من الغرفة
+  room.players = room.players.filter(pid => pid !== userId);
+
+  // إذا كان منشئ الغرفة وخرج، ننقل الملكية لشخص آخر إن وجد
+  if (player.isCreator && room.players.length > 0) {
+    const newCreatorId = room.players[0];
+    const newCreator = players.get(newCreatorId);
+    if (newCreator) {
+      newCreator.isCreator = true;
+    }
+  }
+
+  // إذا لم يتبقَّ أحد في الغرفة، نحذف الغرفة بالكامل
+  if (room.players.length === 0) {
+    rooms.delete(room.id);
+    console.log(`🗑️ تم حذف الغرفة ${room.roomCode} لعدم وجود لاعبين.`);
+  } else {
+    rooms.set(room.id, room);
+    broadcastToRoom(room.id, 'playerLeft', {
+      userId,
+      players: getPlayersInRoom(room.id)
+    });
+  }
+
+  players.delete(userId);
+  console.log(`🚪 اللاعب ${player.name} (${userId}) غادر الغرفة ${room.roomCode}`);
 }
 
 function handleChatMessage(ws, userId, data) {
   const player = players.get(userId);
-  if (!player || !player.roomId) {
-    return sendToPlayer(userId, 'error', { message: 'أنت لست في غرفة.' });
-  }
-  
+  if (!player || !player.roomId) return;
+  const room = rooms.get(player.roomId);
+  if (!room) return;
+
   const { message } = data;
-  if (!message || message.trim() === '') return;
-  
-  // فلترة الرموز الغريبة
-  const filteredMessage = message.trim().replace(/[^\p{L}\p{N}\p{P}\p{Z}]/gu, ''); // السماح بالحروف والأرقام وعلامات الترقيم والمسافات
-  
-  if (filteredMessage.length === 0) {
-    return sendToPlayer(userId, 'error', { message: 'الرسالة تحتوي على رموز غير مدعومة.' }, ws);
-  }
-  
-  if (filteredMessage.length > 200) {
-    return sendToPlayer(userId, 'error', { message: 'الرسالة طويلة جداً (الحد الأقصى 200 حرف).' }, ws);
-  }
-  
-  // إرسال الرسالة لجميع اللاعبين في الغرفة (تم التأكد من عدم وجود تأخير هنا)
-  broadcastToRoom(player.roomId, 'chatMessage', {
+  if (!message || typeof message !== 'string' || !message.trim()) return;
+
+  broadcastToRoom(room.id, 'chatMessage', {
     senderId: userId,
     senderName: player.name,
     message: message.trim(),
     timestamp: Date.now()
   });
-  
-  console.log(`💬 ${player.name} في الغرفة ${rooms.get(player.roomId).roomCode}: ${message.trim()}`);
 }
+
 function handleChangeName(ws, userId, data) {
   const player = players.get(userId);
-  if (!player) return;
-  
-  const { newName } = data;
-  
-  // التحقق من الاسم (تمت الفلترة في الواجهة، لكن للتأكد)
-  if (!newName || newName.length > 20) {
-    return sendToPlayer(userId, 'error', { message: 'اسم غير صالح.' });
+  if (!player) {
+    return sendToPlayer(userId, 'error', { message: 'لا يمكن تغيير الاسم. اللاعب غير موجود.' }, ws);
   }
-  
-  // التحقق من تكرار الاسم في الغرفة
+
+  const { newName } = data;
+
+  if (!newName || newName.trim().length === 0) {
+    return sendToPlayer(userId, 'error', { message: 'يجب إدخال اسم صحيح.' }, ws);
+  }
+
+  if (newName.trim().length > 20) {
+    return sendToPlayer(userId, 'error', { message: 'الاسم طويل جداً (الحد الأقصى 20 حرف).' }, ws);
+  }
+
+  // التأكد من عدم تكرار الاسم داخل نفس الغرفة
   if (player.roomId) {
     const room = rooms.get(player.roomId);
     if (room) {
-      const isNameTaken = room.players.some(pid => {
-        const p = players.get(pid);
-        return p && p.id !== userId && p.name === newName;
-      });
-      
-      if (isNameTaken) {
-        return sendToPlayer(userId, 'error', { message: `الاسم "${newName}" مستخدم بالفعل في هذه الغرفة.` });
-      }
-    }
-  }
-  
-  const oldName = player.name;
-  player.name = newName;
-  
-  // إرسال تحديث للاعب نفسه
-  sendToPlayer(userId, 'nameChanged', { newName });
-  
-  // إرسال تحديث للغرفة
-  if (player.roomId) {
-    broadcastToRoom(player.roomId, 'nameChanged', {
-      userId: userId,
-      newName: newName,
-      players: getPlayersInRoom(player.roomId)
-    });
-  }
-  
-  console.log(`✏️ تم تغيير اسم اللاعب ${oldName} إلى ${newName}`);
-}
+      const existingNames = room.players
+        .filter(pid => pid !== userId)
+        .map(pid => players.get(pid)?.name.toLowerCase())
+        .filter(Boolean);
 
-function handleLeaveRoom(ws, userId, data) {
-  const player = players.get(userId);
-  if (!player) return;
-  
-  const room = rooms.get(player.roomId);
-  if (room) {
-    if (room.gameState === 'inGame' && room.players[room.currentPlayerIndex] === userId) {
-      const currentIndex = room.players.indexOf(userId);
-      if (currentIndex !== -1) {
-        if (room.questionTimer) {
-          clearTimeout(room.questionTimer);
-          room.questionTimer = null;
-        }
-        room.players = room.players.filter(id => id !== userId);
-        room.currentPlayerIndex = currentIndex % room.players.length;
-        broadcastToRoom(room.id, 'nextQuestion', {
-          currentPlayer: room.players[room.currentPlayerIndex]
-        });
-        startQuestionTimer(room);
+      if (existingNames.includes(newName.trim().toLowerCase())) {
+        return sendToPlayer(userId, 'error', { message: 'هذا الاسم مستخدم بالفعل في الغرفة.' }, ws);
       }
-    } else {
-      room.players = room.players.filter(id => id !== userId);
     }
-    
-    if (room.players.length === 0) {
-      // عدم حذف الغرفة إذا كانت في حالة الانتظار (لم تبدأ اللعبة بعد)
-      if (room.gameState !== 'waiting') {
-        if (room.questionTimer) clearTimeout(room.questionTimer);
-        if (room.votingTimer) clearTimeout(room.votingTimer);
-        rooms.delete(room.id);
-        console.log(`🗑️ تم حذف الغرفة ${room.roomCode} لعدم وجود لاعبين.`);
-      } else {
-        console.log(`⏸️ الغرفة ${room.roomCode} فارغة لكن في حالة الانتظار، لن يتم حذفها.`);
-      }
-    } else {
-      // تحديث قائمة اللاعبين للجميع
-      broadcastToRoom(room.id, 'playerLeft', {
+  }
+
+  const oldName = player.name;
+  player.name = newName.trim();
+  players.set(userId, player);
+
+  sendToPlayer(userId, 'nameChanged', { newName: player.name });
+
+  if (player.roomId) {
+    const room = rooms.get(player.roomId);
+    if (room) {
+      broadcastToRoom(player.roomId, 'playerRenamed', {
+        userId,
+        oldName,
+        newName: player.name,
         players: getPlayersInRoom(room.id)
       });
-      
-      // ✅ إصلاح: التحقق من اكتمال التصويت بعد خروج اللاعب
-      if (room.gameState === 'voting') {
-        // حذف أصوات اللاعب المغادر
-        room.votes = room.votes.filter(v => v.voterId !== userId && v.targetId !== userId);
-        
-        // التحقق من اكتمال التصويت
-        if (room.votes.length === room.players.length) {
-          // إلغاء مؤقت التصويت
-          if (room.votingTimer) {
-            clearTimeout(room.votingTimer);
-            room.votingTimer = null;
-          }
-          
-          // حساب الأصوات
-          const voteCounts = room.votes.reduce((acc, vote) => {
-            acc[vote.targetId] = (acc[vote.targetId] || 0) + 1;
-            return acc;
-          }, {});
-          
-          const maxVotes = Math.max(...Object.values(voteCounts));
-          const playersWithMaxVotes = Object.keys(voteCounts).filter(id => voteCounts[id] === maxVotes);
-          
-          if (playersWithMaxVotes.length > 1) {
-            room.gameState = 'finished';
-            broadcastToRoom(room.id, 'roundResult', {
-              winner: 'spy',
-              word: room.currentWord,
-              spyWord: room.spyWord,
-              spyPlayer: players.get(room.spyId).name,
-              isSpyEliminated: false,
-              tie: true
-            });
-          } else {
-            const mostVotedPlayer = playersWithMaxVotes[0];
-            if (mostVotedPlayer === room.spyId) {
-              room.gameState = 'challenge';
-              const challengeWords = generateChallengeWords(room.category, room.currentWord);
-              room.challenge = {
-                spyId: room.spyId,
-                words: challengeWords,
-                correctWord: room.currentWord,
-                spyAnswer: null,
-                status: null
-              };
-              sendToPlayer(room.spyId, 'spyChallenge', { words: challengeWords });
-              room.players.filter(pid => pid !== room.spyId).forEach(pid => {
-                sendToPlayer(pid, 'waitingForChallenge', { spyName: players.get(room.spyId).name });
-              });
-              room.challengeTimer = setTimeout(() => {
-                if (room.gameState === 'challenge' && room.challenge && room.challenge.status === null) {
-                  room.challenge.status = 'timeout';
-                  room.gameState = 'finished';
-                  broadcastToRoom(room.id, 'roundResult', {
-                    winner: 'normal',
-                    word: room.currentWord,
-                    spyWord: room.spyWord,
-                    spyPlayer: players.get(room.spyId).name,
-                    isSpyEliminated: true,
-                    challenge: { status: 'timeout', chosenWord: null, correctWord: room.currentWord }
-                  });
-                }
-              }, 30000);
-            } else {
-              room.gameState = 'finished';
-              broadcastToRoom(room.id, 'roundResult', {
-                winner: 'spy',
-                word: room.currentWord,
-                spyWord: room.spyWord,
-                spyPlayer: players.get(room.spyId).name,
-                isSpyEliminated: false
-              });
-            }
-          }
-        }
-      }
-      
-      // إذا كان المغادر هو منشئ الغرفة، يتم تعيين منشئ جديد
-      if (player.isCreator && room.players.length > 0) {
-        const newCreatorId = room.players[0];
-        const newCreator = players.get(newCreatorId);
-        if (newCreator) {
-          newCreator.isCreator = true;
-          broadcastToRoom(room.id, 'creatorChanged', { 
-            newCreatorId,
-            players: getPlayersInRoom(room.id)
-          });
-          console.log(`👑 تم تعيين ${newCreator.name} كمنشئ جديد للغرفة ${room.roomCode}.`);
-        }
-      }
-      rooms.set(room.id, room);
     }
   }
-  
-  // ✅ الإصلاح 3: إرسال حدث إلى العميل الذي غادر ليتمكن من إعادة تعيين واجهة المستخدم
-  sendToPlayer(userId, 'roomLeft', {});
-  
-  players.delete(userId);
-  console.log(`👋 غادر اللاعب ${player.name} (${userId}).`);
+
+  console.log(`✏️ تغيير اسم اللاعب: ${oldName} → ${player.name} (${userId})`);
 }
 
 function handleReconnect(ws, userId, data) {
@@ -1270,7 +1152,7 @@ function handleReconnect(ws, userId, data) {
         currentWord: player.isSpy ? room.spyWord : room.currentWord,
         isSpy: player.isSpy,
         currentPlayer: room.players[room.currentPlayerIndex],
-        creatorId: room.players.find(pid => players.get(pid)?.isCreator) || room.players[0] // ✅ إصلاح: البحث عن المنشئ الفعلي
+        creatorId: room.players.find(pid => players.get(pid)?.isCreator) || room.players[0]
       });
       
       // إرسال تحديث للغرفة بأن اللاعب عاد متصلاً
@@ -1291,13 +1173,46 @@ function handleReconnect(ws, userId, data) {
 wss.on('connection', (ws) => {
   let userId = 'user-' + uuidv4();
   
-  // إرسال الـ userId الجديد للعميل
+  // إرسال الـ userId الجديد للعميل (حالياً الواجهة ما تستخدمه بشكل مباشر)
   sendToPlayer(userId, 'setUserId', { userId: userId }, ws);
   console.log(`✅ اتصال WebSocket جديد: ${userId}`);
   
   ws.on('message', (message) => {
     try {
       const { event, data } = JSON.parse(message);
+
+      // ✅ ربط اتصال WebSocket الحالي بلاعب موجود إذا أرسل userId معروف
+      // هذا يدعم إعادة الاتصال بدون الحاجة لتغيير أي شيء في الواجهة الأمامية
+      if (data && data.userId && players.has(data.userId)) {
+        if (data.userId !== userId) {
+          console.log(`🔄 ربط اتصال WebSocket الحالي باللاعب الموجود ${data.userId} (بدلاً من ${userId})`);
+        }
+
+        // تحديث الـ userId المحلي ليشير إلى اللاعب الحقيقي
+        userId = data.userId;
+
+        const player = players.get(userId);
+        if (player) {
+          // إذا كان عنده اتصال قديم، نحاول إغلاقه
+          if (player.ws && player.ws !== ws && player.ws.readyState === player.ws.OPEN) {
+            try {
+              player.ws.close();
+            } catch (err) {
+              console.error('⚠️ خطأ أثناء إغلاق اتصال WebSocket القديم:', err);
+            }
+          }
+
+          // ربط الـ WebSocket الجديد باللاعب
+          player.ws = ws;
+
+          // إلغاء مؤقت الحذف إذا كان موجود
+          if (player.disconnectTimer) {
+            clearTimeout(player.disconnectTimer);
+            player.disconnectTimer = null;
+          }
+        }
+      }
+
       console.log(`📨 رسالة من ${userId}: ${event}`, data);
       
       switch (event) {
@@ -1391,52 +1306,16 @@ wss.on('connection', (ws) => {
 // ============================================
 app.get('/api/health', (req, res) => {
   const now = new Date();
-  const arabicDate = now.toLocaleDateString('ar-SA', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  });
-  
   res.json({
     status: 'ok',
-    timestamp: arabicDate
+    timestamp: now.toISOString()
   });
-});
-
-app.get('/api/rooms', (req, res) => {
-  const publicRooms = [];
-  for (const [, room] of rooms) {
-    // إرجاع الغرف العامة فقط (ليست خاصة)
-    if (!room.isPrivate && room.gameState === 'waiting' && room.players.length < room.maxPlayers) {
-      publicRooms.push({
-        id: room.id,
-        name: room.name,
-        roomCode: room.roomCode,
-        players: getPlayersInRoom(room.id),
-        maxPlayers: room.maxPlayers
-      });
-    }
-  }
-  res.json(publicRooms);
 });
 
 // ============================================
-// بدء الخادم
+// تشغيل السيرفر
 // ============================================
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
-  console.log('🎮 لعبة برا السالفة تعمل على http://localhost:' + PORT);
-  const now = new Date();
-  const arabicDate = now.toLocaleDateString('ar-SA', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  });
-  console.log('📊 الوقت الحالي: ' + arabicDate);
+  console.log(`🚀 السيرفر شغال على المنفذ ${PORT}`);
 });
