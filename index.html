@@ -1022,87 +1022,71 @@
     <span class="heart-icon">💜</span>
   </button>
   
-  <!-- زر فتح/إغلاق المحادثات -->
-  <button id="chatToggleBtn" class="chat-toggle-btn" onclick="toggleChat()">💬</button>
-  
-  <!-- صندوق المحادثات -->
-  <div id="chatBox" class="chat-box">
-    <div class="chat-header">
-      <span>💬 المحادثات</span>
-      <button class="chat-close-btn" onclick="toggleChat()">×</button>
-    </div>
-    <div id="chatMessages" class="chat-messages">
-      <div class="chat-empty">💬 لا توجد رسائل بعد...</div>
-    </div>
-    <div class="chat-input-container">
-      <input id="chatInput" type="text" placeholder="اكتب رسالتك..." maxlength="200">
-      <button id="chatSendBtn" onclick="sendChatMessage()">إرسال</button>
-    </div>
-  </div>
-  
-  <script>
-    // ✅ دالة توليد معرّف فريد (بديل لـ uuid.v4)
-    function generateUUID() {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        const r = Math.random() * 16 | 0;
-        const v = c === 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-      });
+ <script>
+  // ✅ دالة توليد معرّف فريد (بديل لـ uuid.v4)
+  function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+
+  let socket = null;
+  let wsPingInterval;
+  let userId = null;
+  let displayName = null;
+  let roomId = null;
+  let roomCode = null;
+  let creatorId = null;
+  let isSpy = false;
+  let players = [];
+  let hasVoted = false;
+  let chatOpen = false;
+  let unreadMessages = 0;
+
+  // ✅ استعادة البيانات من localStorage — الإصلاح الكامل
+  function initializeFromStorage() {
+    const savedName = localStorage.getItem('playerName');
+
+    if (savedName) {
+      displayName = savedName;
+      document.getElementById('playerName').value = displayName; 
+    } else {
+      document.getElementById('playerName').value = '';
     }
-    
-    let socket = null;
-    let wsPingInterval;
-    let userId = null;
-    let displayName = null;
-    let roomId = null;
-    let roomCode = null;
-    let creatorId = null;
-    let isSpy = false;
-    let players = [];
-    let hasVoted = false;
-    let chatOpen = false;
-    let unreadMessages = 0;
-    
-    // ✅ استعادة البيانات من localStorage
-    function initializeFromStorage() {
-      const savedName = localStorage.getItem('playerName');
-      
-      if (savedName) {
-        displayName = savedName;
-        docum));
-      } else {
-        console.error('❌ WebSocket غير متصل أو غير جاهز للإرسال');
-        showError('خطأ في الاتصال بالسيرفر. حاول تحديث الصفحة.');
-      }
-    }
-    
+  }
+
   // ✅ معالج رسائل WebSocket
   function handleMessage(event) {
     try {
       const message = JSON.parse(event.data);
       const { event: eventName, data } = message;
-      
+
       console.log(`📥 رسالة واردة: ${eventName}`, data);
-      
+
       switch (eventName) {
         case 'error':
-          // ✅ الإصلاح 4: عرض رسائل الخطأ بشكل أفضل
           showError(data.message, true);
           break;
+
         case 'roomLeft':
-          // ✅ الإصلاح 3: إعادة تعيين الواجهة الأمامية عند مغادرة الغرفة
           resetUI();
           break;
+
         case 'playerDisconnected':
           showError(`🔴 انقطع اتصال ${data.playerName}`, true);
           break;
+
         case 'playerReconnected':
           showError(`🟢 عاد ${data.playerName} للاتصال`);
           updatePlayersList(data.players);
           break;
+
         case 'questionTimeout':
           showError(`⏰ انتهى وقت ${data.playerName}`);
           break;
+
         case 'roomCreated':
           userId = data.userId;
           roomId = data.roomId;
@@ -1112,6 +1096,7 @@
           displayRoomCode();
           updatePlayersList(data.players);
           break;
+
         case 'joinedRoom':
           userId = data.userId;
           roomId = data.roomId;
@@ -1121,17 +1106,25 @@
           displayRoomCode();
           updatePlayersList(data.players);
           break;
+
         case 'playerJoined':
         case 'playerLeft':
           updatePlayersList(data.players);
           break;
+
         case 'nameChanged':
           displayName = data.newName;
           localStorage.setItem('playerName', displayName);
-          docum catch (error) {
+          document.getElementById('playerName').value = displayName; 
+          break;
+      }
+
+    } catch (error) {
       console.error('❌ خطأ في معالجة الرسالة:', error);
     }
   }
+</script>
+
   
   // ✅ إنشاء WebSocket connection
   function initializeSocket() {
