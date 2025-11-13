@@ -1216,57 +1216,69 @@
     send('spyChallengeAnswer', { chosenWord });
   }
   
-  // ✅ دالة تغيير الاسم في شاشة اختيار الغرفة
-  function changeNameInSelection() {
-    const newName = docum
+ // ✅ دالة تغيير الاسم في شاشة اختيار الغرفة
+function changeNameInSelection() {
+  const newName = document.getElementById('newNameInput').value.trim();
+}
+
   
-  function confirmVote() {
-    if (!selectedVoteId) {
-      showError('يرجى اختيار لاعب أولاً');
-      return;
-    }
-    
-    if (hasVoted) {
-      showError('لقد صوتت بالفعل في هذه الجولة.');
-      return;
-    }
-    
-    send('vote', { targetId: selectedVoteId });
-    hasVoted = true;
-    selectedVoteId = null;
-    
-    // تعطيل جميع الأزرار
-    document.querySelectorAll('.vote-btn').forEach(btn => {
-      btn.disabled = true;
-    });
-    const confirmBtn = docum
+function confirmVote() {
+  if (!selectedVoteId) {
+    showError('يرجى اختيار لاعب أولاً');
+    return;
+  }
   
-  function showSpyChallengeScreen(words) {
-    hideAllScreens();
-    docum else if (status === 'timeout' || chosen == null) {
-        // المندس لم يختر أي سالفة
-        resultTitleText = `❌ خسر المندس (${data.spyPlayer}) لأنه لم يختر أي سالفة في الوقت المحدد.`;
-        resultWordText += `<br>السالفة الصحيحة كانت: <span style="color: green; font-weight: bold;">${correct}</span>`;
-      } else {
-        // اختار سالفة غلط
-        resultTitleText = `🎉 فاز اللاعبون العاديون!`;
-        resultWordText += `<br>السالفة الصحيحة: <span style="color: green; font-weight: bold;">${correct}</span>`;
-        if (chosen) {
-          resultWordText += `<br>المندس اختار سالفة خاطئة: <span style="color: red; font-weight: bold;">${chosen}</span>`;
-        }
-      }
-    } else if (data.winner === 'normal') {
-      // المندس انكشف بالتصويت
-      resultTitleText = `🎉 فاز اللاعبون العاديون!`;
-      resultWordText += `<br>السالفة الصحيحة: <span style="color: green; font-weight: bold;">${data.word}</span>`;
-      resultWordText += `<br>تم كشف المندس: ${data.spyPlayer}`;
-    } else {
-      // المندس لم ينكشف
-      resultTitleText = `🎉 فاز المندس (${data.spyPlayer})!`;
-      resultWordText += `<br>السالفة الصحيحة: <span style="color: green; font-weight: bold;">${data.word}</span>`;
-    }
-    
-    docum
+  if (hasVoted) {
+    showError('لقد صوتت بالفعل في هذه الجولة.');
+    return;
+  }
+  
+  send('vote', { targetId: selectedVoteId });
+  hasVoted = true;
+  selectedVoteId = null;
+  
+  // تعطيل جميع الأزرار
+  document.querySelectorAll('.vote-btn').forEach(btn => {
+    btn.disabled = true;
+  });
+
+  const confirmBtn = document.getElementById('confirmVoteBtn');
+}
+
+  
+function showSpyChallengeScreen(words) {
+  hideAllScreens();
+  document.getElementById('spyChallengeScreen').classList.add('active');
+
+  // *** هنا كودك الأصلي يبدأ ***
+  // باقي منطق showResultScreen اللي إنت كتبته
+
+} else if (status === 'timeout' || chosen == null) {
+  // المندس لم يختر أي سالفة
+  resultTitleText = `❌ خسر المندس (${data.spyPlayer}) لأنه لم يختر أي سالفة في الوقت المحدد.`;
+  resultWordText += `<br>السالفة الصحيحة كانت: <span style="color: green; font-weight: bold;">${correct}</span>`;
+} else {
+  // اختار سالفة غلط
+  resultTitleText = `🎉 فاز اللاعبون العاديون!`;
+  resultWordText += `<br>السالفة الصحيحة: <span style="color: green; font-weight: bold;">${correct}</span>`;
+  if (chosen) {
+    resultWordText += `<br>المندس اختار سالفة خاطئة: <span style="color: red; font-weight: bold;">${chosen}</span>`;
+  }
+}
+
+} else if (data.winner === 'normal') {
+  // المندس انكشف بالتصويت
+  resultTitleText = `🎉 فاز اللاعبون العاديون!`;
+  resultWordText += `<br>السالفة الصحيحة: <span style="color: green; font-weight: bold;">${data.word}</span>`;
+  resultWordText += `<br>تم كشف المندس: ${data.spyPlayer}`;
+} else {
+  // المندس لم ينكشف
+  resultTitleText = `🎉 فاز المندس (${data.spyPlayer})!`;
+  resultWordText += `<br>السالفة الصحيحة: <span style="color: green; font-weight: bold;">${data.word}</span>`;
+}
+
+document.getElementById('resultScreen').classList.add('active');
+
   
   // ============================================
   // دوال المؤقت (Timer)
