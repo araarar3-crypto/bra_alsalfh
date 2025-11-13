@@ -1827,17 +1827,14 @@
     }
   }
 
-  function updateCurrentPlayer(currentPlayerId) {
-    const currentPlayer = players.find(p => p.id === currentPlayerId);
-    if (currentPlayer) {
-      document.getElementById('currentPlayerDisplay').textContent = `${currentPlayer.name} يسأل الجميع.`;
-      document.getElementById('finishQuestionBtn').disabled = (userId !== currentPlayerId);
-    }
+function updateCurrentPlayer(currentPlayerId) {
+  const currentPlayer = players.find(p => p.id === currentPlayerId);
+  if (currentPlayer) {
+    document.getElementById('currentPlayerDisplay').textContent = `${currentPlayer.name} يسأل الجميع.`;
+    document.getElementById('finishQuestionBtn').disabled = (userId !== currentPlayerId);
   }
-ent.getElementById('currentPlayerDisplay').textContent = `${currentPlayer.name} يسأل الجميع.`;
-      document.getElementById('finishQuestionBtn').disabled = (userId !== currentPlayerId);
-    }
-  }
+}
+
   
   function resetUI() {
     if(typeof stopTimer==="function") stopTimer();
