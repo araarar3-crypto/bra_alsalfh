@@ -2309,183 +2309,107 @@ function startTimer(endTime) {
     function sendChatMessage() {
       const input = document.getElementById('chatInput');
       let message = input.value.trim();
-
-      if (!message || message.length === 0) return;
+      if (!message) return;
       if (message.length > 200) {
-        showError('الرسالة طويلة جداً (الحد الأقصى 200 حرف)');
+        showError('الرسالة طويلة جداً!');
         return;
       }
-
       const now = Date.now();
       chatMessageTimes = chatMessageTimes.filter(t => now - t < 10000);
       if (chatMessageTimes.length >= 5) {
-        showError('لا ترسل بسرعة كذا يا وحش!');
+        showError('لا ترسل بسرعة كذا!');
         return;
       }
       chatMessageTimes.push(now);
-
       send('chatMessage', { message });
       input.value = '';
     }
 
-    // استقبال رسالة الشات
     function handleChatMessage(data) {
-      const container = document.getElementById('chatMessages');
-      const empty = container.querySelector('.chat-empty');
-      if (empty) empty.remove();
-
+      const c = document.getElementById('chatMessages');
+      c.querySelector('.chat-empty')?.remove();
       const div = document.createElement('div');
       div.className = 'chat-message';
       if (data.senderId === userId) div.classList.add('my-message');
-
-      const time = new Date(data.timestamp).toLocaleTimeString('ar-SA', {
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-
-      div.innerHTML = `
-        <div class="chat-message-sender">${escapeHtml(data.senderName)}</div>
-        <div class="chat-message-text">${escapeHtml(data.message)}</div>
-        <div class="chat-message-time">${time}</div>
-      `;
-
-      container.appendChild(div);
+      const t = new Date(data.timestamp).toLocaleTimeString('ar-SA', {hour:'2-digit',minute:'2-digit'});
+      div.innerHTML = `<div class="chat-message-sender">${escapeHtml(data.senderName)}</div><div class="chat-message-text">${escapeHtml(data.message)}</div><div class="chat-message-time">${t}</div>`;
+      c.appendChild(div);
       scrollChatToBottom();
-
-      if (!chatOpen) {
-        unreadMessages++;
-        updateChatNotification();
-        soundNewMessage.play().catch(() => {});
-      }
+      if (!chatOpen) { unreadMessages++; updateChatNotification(); soundNewMessage.play().catch(()=>{}); }
     }
 
     function scrollChatToBottom() {
-      const container = document.getElementById('chatMessages');
-      if (container) container.scrollTop = container.scrollHeight;
+      const c = document.getElementById('chatMessages');
+      if (c) c.scrollTop = c.scrollHeight;
     }
 
     function updateChatNotification() {
-      let notif = document.getElementById('chatNotification');
+      let n = document.getElementById('chatNotification');
       if (unreadMessages > 0 && !chatOpen) {
-        if (!notif) {
-          notif = document.createElement('div');
-          notif.id = 'chatNotification';
-          notif.className = 'chat-notification';
-          document.getElementById('chatToggleBtn').appendChild(notif);
-        }
-        notif.textContent = unreadMessages > 9 ? '9+' : unreadMessages;
-      } else if (notif) {
-        notif.remove();
-      }
+        if (!n) { n = document.createElement('div'); n.id = 'chatNotification'; n.className = 'chat-notification'; document.getElementById('chatToggleBtn').appendChild(n); }
+        n.textContent = unreadMessages > 9 ? '9+' : unreadMessages;
+      } else if (n) n.remove();
     }
 
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
+    function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
 
-    function showChatButton() {
-      const btn = document.getElementById('chatToggleBtn');
-      if (btn) btn.classList.add('active');
-    }
-
+    function showChatButton() { document.getElementById('chatToggleBtn')?.classList.add('active'); }
     function hideChatButton() {
-      const btn = document.getElementById('chatToggleBtn');
-      const box = document.getElementById('chatBox');
-      if (btn) btn.classList.remove('active');
-      if (box) box.classList.remove('active');
-      chatOpen = false;
-      unreadMessages = 0;
-      updateChatNotification();
-      const container = document.getElementById('chatMessages');
-      if (container) container.innerHTML = '<div class="chat-empty">لا توجد رسائل بعد... 💬</div>';
+      document.getElementById('chatToggleBtn')?.classList.remove('active');
+      document.getElementById('chatBox')?.classList.remove('active');
+      chatOpen = false; unreadMessages = 0; updateChatNotification();
+      document.getElementById('chatMessages').innerHTML = '<div class="chat-empty">لا توجد رسائل بعد... 💬</div>';
     }
 
-    // Enter في الشات
     document.addEventListener('DOMContentLoaded', () => {
-      const input = document.getElementById('chatInput');
-      if (input) {
-        input.addEventListener('keypress', e => {
-          if (e.key === 'Enter') sendChatMessage();
-        });
-      }
+      document.getElementById('chatInput')?.addEventListener('keypress', e => { if (e.key === 'Enter') sendChatMessage(); });
     });
 
-    // طلب جولة جديدة
     function requestNewRound() {
-      if (!socket || socket.readyState !== WebSocket.OPEN) {
-        showError('غير متصل بالخادم');
-        return;
-      }
+      if (!socket || socket.readyState !== WebSocket.OPEN) return showError('غير متصل');
       socket.send(JSON.stringify({ event: 'requestNewRound', data: {} }));
       document.getElementById('newRoundBtn').style.display = 'none';
     }
 
     function voteNewRound(accept) {
-      if (!socket || socket.readyState !== WebSocket.OPEN) {
-        showError('غير متصل بالخادم');
-        return;
-      }
+      if (!socket || socket.readyState !== WebSocket.OPEN) return showError('غير متصل');
       socket.send(JSON.stringify({ event: 'voteNewRound', data: { accept } }));
       document.getElementById('newRoundVoteDiv').style.display = 'none';
     }
 
-    // دارك مود
     function toggleDarkMode() {
-      const body = document.body;
-      const icon = document.getElementById('darkModeIcon');
-      body.classList.toggle('dark-mode');
-      if (body.classList.contains('dark-mode')) {
-        icon.textContent = '☀️';
-        localStorage.setItem('darkMode', 'enabled');
+      document.body.classList.toggle('dark-mode');
+      const i = document.getElementById('darkModeIcon');
+      if (document.body.classList.contains('dark-mode')) {
+        i.textContent = '☀️'; localStorage.setItem('darkMode', 'enabled');
       } else {
-        icon.textContent = '🌙';
-        localStorage.setItem('darkMode', 'disabled');
+        i.textContent = '🌙'; localStorage.setItem('darkMode', 'disabled');
       }
     }
 
     function loadDarkModePreference() {
-      const pref = localStorage.getItem('darkMode');
-      if (pref === 'enabled') {
+      if (localStorage.getItem('darkMode') === 'enabled') {
         document.body.classList.add('dark-mode');
-        const icon = document.getElementById('darkModeIcon');
-        if (icon) icon.textContent = '☀️';
+        document.getElementById('darkModeIcon').textContent = '☀️';
       }
     }
 
     function triggerWinAnimation() {
-      const title = document.getElementById('resultTitle');
-      if (title) {
-        title.classList.add('winner-animation');
-        title.style.animation = 'glow 1s ease-in-out infinite alternate';
-      }
+      const t = document.getElementById('resultTitle');
+      if (t) { t.classList.add('winner-animation'); t.style.animation = 'glow 1s ease-in-out infinite alternate'; }
       document.querySelectorAll('.confetti').forEach(c => c.remove());
     }
 
-    // تحميل الصفحة
     window.onload = () => {
       loadDarkModePreference();
       initializeFromStorage();
-
-      const hash = window.location.hash.substring(1);
-      if (hash && hash.length === 6) {
-        document.getElementById('roomCodeInput').value = hash;
-        if (displayName) {
-          showRoomSelectionScreen();
-          setTimeout(() => {
-            initializeSocket();
-            joinRoomByCode({ preventDefault: () => {} });
-          }, 500);
-        } else {
-          showScreen('loginScreen');
-        }
-      } else if (displayName) {
-        showRoomSelectionScreen();
-        initializeSocket();
-      } else {
-        showScreen('loginScreen');
-      }
+      const h = window.location.hash.substring(1);
+      if (h && h.length === 6) {
+        document.getElementById('roomCodeInput').value = h;
+        if (displayName) { showRoomSelectionScreen(); setTimeout(() => { initializeSocket(); joinRoomByCode({preventDefault:()=>{}}); }, 500); }
+        else showScreen('loginScreen');
+      } else if (displayName) { showRoomSelectionScreen(); initializeSocket(); }
+      else showScreen('loginScreen');
     };
   </script>
 </body>
