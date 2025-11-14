@@ -2305,84 +2305,89 @@ function startTimer(endTime) {
     
     chatMessageTimes.push(now);
     
-    // إرسال الرسالة مباشرة
-    send('chatMessage', { message });
-    input.value = '';
-  }
-      // استقبال رسالة
+    // إرسال رسالة الشات
+    function sendChatMessage() {
+      const input = document.getElementById('chatInput');
+      let message = input.value.trim();
+
+      if (!message || message.length === 0) return;
+      if (message.length > 200) {
+        showError('الرسالة طويلة جداً (الحد الأقصى 200 حرف)');
+        return;
+      }
+
+      // Rate limiting بسيط
+      const now = Date.now();
+      chatMessageTimes = chatMessageTimes.filter(t => now - t < 10000);
+      if (chatMessageTimes.length >= 5) {
+        showError('لا ترسل بسرعة كذا يا وحش!');
+        return;
+      }
+      chatMessageTimes.push(now);
+
+      send('chatMessage', { message });
+      input.value = '';
+    }
+
+    // استقبال رسالة الشات
     function handleChatMessage(data) {
-      const messagesContainer = document.getElementById('chatMessages');
-      
-     // استقبال رسالة الشات من السيرفر
-    function handleChatMessage(data) {
-      const messagesContainer = document.getElementById('chatMessages');
-      
-      // إزالة رسالة "لا توجد رسائل" إذا كانت موجودة
-      const emptyMsg = messagesContainer.querySelector('.chat-empty');
-      if (emptyMsg) emptyMsg.remove();
-      
-      const messageDiv = document.createElement('div');
-      messageDiv.className = 'chat-message';
-      
-      const isMyMessage = data.senderId === userId;
-      if (isMyMessage) messageDiv.classList.add('my-message');
-      
+      const container = document.getElementById('chatMessages');
+
+      // إزالة "لا توجد رسائل"
+      const empty = container.querySelector('.chat-empty');
+      if (empty) empty.remove();
+
+      const div = document.createElement('div');
+      div.className = 'chat-message';
+      if (data.senderId === userId) div.classList.add('my-message');
+
       const time = new Date(data.timestamp).toLocaleTimeString('ar-SA', {
         hour: '2-digit',
         minute: '2-digit'
       });
-      
-      messageDiv.innerHTML = `
+
+      div.innerHTML = `
         <div class="chat-message-sender">${escapeHtml(data.senderName)}</div>
         <div class="chat-message-text">${escapeHtml(data.message)}</div>
         <div class="chat-message-time">${time}</div>
       `;
-      
-      messagesContainer.appendChild(messageDiv);
-      
-      // التمرير التلقائي
+
+      container.appendChild(div);
       scrollChatToBottom();
-      
-      // إشعار الرسائل الجديدة
+
       if (!chatOpen) {
         unreadMessages++;
         updateChatNotification();
-        soundNewMessage.play().catch(() => {}); // عشان ما يطلع خطأ لو الصوت محظور
+        soundNewMessage.play().catch(() => {});
       }
     }
 
-    // التمرير لأسفل الشات
     function scrollChatToBottom() {
-      const messagesContainer = document.getElementById('chatMessages');
-      if (messagesContainer) {
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      }
+      const container = document.getElementById('chatMessages');
+      if (container) container.scrollTop = container.scrollHeight;
     }
 
-    // تحديث إشعار عدد الرسائل غير المقروءة
     function updateChatNotification() {
-      let notification = document.getElementById('chatNotification');
+      let notif = document.getElementById('chatNotification');
       if (unreadMessages > 0 && !chatOpen) {
-        if (!notification) {
-          notification = document.createElement('div');
-          notification.id = 'chatNotification';
-          notification.className = 'chat-notification';
-          document.getElementById('chatToggleBtn').appendChild(notification);
+        if (!notif) {
+          notif = document.createElement('div');
+          notif.id = 'chatNotification';
+          notif.className = 'chat-notification';
+          document.getElementById('chatToggleBtn').appendChild(notif);
         }
-        notification.textContent = unreadMessages > 9 ? '9+' : unreadMessages;
-      } else if (notification) {
-        notification.remove();
+        notif.textContent = unreadMessages > 9 ? '9+' : unreadMessages;
+      } else if (notif) {
+        notif.remove();
       }
     }
 
-    // تنظيف النص من XSS
     function escapeHtml(text) {
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
     }
 
-    // إظهار وإخفاء زر الشات
     function showChatButton() {
       const btn = document.getElementById('chatToggleBtn');
       if (btn) btn.classList.add('active');
@@ -2396,147 +2401,99 @@ function startTimer(endTime) {
       chatOpen = false;
       unreadMessages = 0;
       updateChatNotification();
-      document.getElementById('chatMessages').innerHTML = '<div class="chat-empty">لا توجد رسائل بعد... 💬</div>';
+      const container = document.getElementById('chatMessages');
+      container.innerHTML = '<div class="chat-empty">لا توجد رسائل بعد... 💬</div>';
     }
-    
-    // تنظيف الرسائل
-    const messagesContainer = document.getElementById('chatMessages');
-    messagesContainer.innerHTML = '<div class="chat-empty">لا توجد رسائل بعد... 💬</div>';
-    unreadMessages = 0;
-    updateChatNotification();
-  }
-  
-  // إضافة مستمع للضغط على Enter
-  document.addEventListener('DOMContentLoaded', () => {
-    const chatInput = document.getElementById('chatInput');
-    if (chatInput) {
-      chatInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          sendChatMessage();
+
+    // مستمع للـ Enter في الشات
+    document.addEventListener('DOMContentLoaded', () => {
+      const input = document.getElementById('chatInput');
+      if (input) {
+        input.addEventListener('keypress', e => {
+          if (e.key === 'Enter') sendChatMessage();
+        });
+      }
+    });
+
+    // ============================================
+    // نظام طلب جولة جديدة
+    // ============================================
+
+    function requestNewRound() {
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        showError('غير متصل بالخادم');
+        return;
+      }
+      socket.send(JSON.stringify({ event: 'requestNewRound', data: {} }));
+      document.getElementById('newRoundBtn').style.display = 'none';
+    }
+
+    function voteNewRound(accept) {
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        showError('غير متصل بالخادم');
+        return;
+      }
+      socket.send(JSON.stringify({ event: 'voteNewRound', data: { accept } }));
+      document.getElementById('newRoundVoteDiv').style.display = 'none';
+    }
+
+    // دارك مود
+    function toggleDarkMode() {
+      const body = document.body;
+      const icon = document.getElementById('darkModeIcon');
+      body.classList.toggle('dark-mode');
+      if (body.classList.contains('dark-mode')) {
+        icon.textContent = '☀️';
+        localStorage.setItem('darkMode', 'enabled');
+      } else {
+        icon.textContent = '🌙';
+        localStorage.setItem('darkMode', 'disabled');
+      }
+    }
+
+    function loadDarkModePreference() {
+      const pref = localStorage.getItem('darkMode');
+      const icon = document.getElementById('darkModeIcon');
+      if (pref === 'enabled') {
+        document.body.classList.add('dark-mode');
+        if (icon) icon.textContent = '☀️';
+      }
+    }
+
+    // أنيميشن الفوز
+    function triggerWinAnimation() {
+      const title = document.getElementById('resultTitle');
+      if (title) {
+        title.classList.add('winner-animation');
+        title.style.animation = 'glow 1s ease-in-out infinite alternate';
+      }
+      document.querySelectorAll('.confetti').forEach(c => c.remove());
+    }
+
+    // تهيئة الصفحة عند التحميل
+    window.onload = () => {
+      loadDarkModePreference();
+      initializeFromStorage();
+
+      const hash = window.location.hash.substring(1);
+      if (hash && hash.length === 6) {
+        document.getElementById('roomCodeInput').value = hash;
+        if (displayName) {
+          showRoomSelectionScreen();
+          setTimeout(() => {
+            initializeSocket();
+            joinRoomByCode({ preventDefault: () => {} });
+          }, 500);
+        } else {
+          showScreen('loginScreen');
         }
-      });
-    }
-  });
-  
-  // ============================================
-  // نظام التصويت للجولة الجديدة
-  // ============================================
-  
-  function requestNewRound() {
-    if (!socket || socket.readyState !== WebSocket.OPEN) {
-      showError('غير متصل بالخادم');
-      return;
-    }
-    
-    socket.send(JSON.stringify({
-      event: 'requestNewRound',
-      data: {}
-    }));
-    
-    // إخفاء زر الجولة الجديدة بعد الضغط
-    document.getElementById('newRoundBtn').style.display = 'none';
-  }
-  
-  function voteNewRound(accept) {
-    if (!socket || socket.readyState !== WebSocket.OPEN) {
-      showError('غير متصل بالخادم');
-      return;
-    }
-    
-    socket.send(JSON.stringify({
-      event: 'voteNewRound',
-      data: { accept }
-    }));
-    
-    // إخفاء نافذة التصويت
-    document.getElementById('newRoundVoteDiv').style.display = 'none';
-  }
-  
-  // دالة الدارك مود
-  function toggleDarkMode() {
-    const body = document.body;
-    const icon = document.getElementById('darkModeIcon');
-    
-    body.classList.toggle('dark-mode');
-    
-    // تغيير الأيقونة بين الهلال والشمس
-    if (body.classList.contains('dark-mode')) {
-      icon.textContent = '☀️'; // شمس
-      localStorage.setItem('darkMode', 'enabled');
-    } else {
-      icon.textContent = '🌙'; // هلال
-      localStorage.setItem('darkMode', 'disabled');
-    }
-  }
-  
-  // تحميل إعدادات الدارك مود عند بدء الصفحة
-  function loadDarkModePreference() {
-    const darkMode = localStorage.getItem('darkMode');
-    const icon = document.getElementById('darkModeIcon');
-    
-    if (darkMode === 'enabled') {
-      document.body.classList.add('dark-mode');
-      if (icon) icon.textContent = '☀️';
-    }
-  }
-  
-  // دالة أنيميشن الفوز (تم تحديثها لأنيميشن أخف)
-  function triggerWinAnimation() {
-    const resultTitle = document.getElementById('resultTitle');
-    if (resultTitle) {
-      resultTitle.classList.add('winner-animation');
-    }
-    
-    // استخدام مكتبة بسيطة للكونفيتي (إذا كانت متوفرة) أو أنيميشن CSS خفيف
-    // سنستخدم أنيميشن CSS خفيف على العنوان بدلاً من إنشاء عناصر DOM كثيرة
-    
-    // إضافة أنيميشن "توهج" خفيف للعنوان
-    if (resultTitle) {
-      resultTitle.style.animation = 'glow 1s ease-in-out infinite alternate';
-    }
-    
-    // إزالة أنيميشن الكونفيتي القديم
-    const oldConfetti = document.querySelectorAll('.confetti');
-    oldConfetti.forEach(c => c.remove());
-    
-    // يمكن إضافة تأثير صوتي خفيف هنا
-    // const winSound = new Audio('win.mp3');
-    // winSound.play();
-  }
-  
-  // إضافة أنيميشن glow في CSS
-  // (سيتم إضافته في قسم الـ style)
-  
-	  // ✅ تهيئة عند تحميل الصفحة
-	  window.onload = () => {
-	    loadDarkModePreference();
-	    initializeFromStorage();
-	    
-	    // فحص الـ URL للبحث عن رمز الغرفة (Deep Linking)
-	    const hash = window.location.hash.substring(1);
-	    if (hash && hash.length === 6) {
-	      document.getElementById('roomCodeInput').value = hash;
-	      // إذا كان الاسم موجوداً، ننتقل لشاشة اختيار الغرفة
-	      if (displayName) {
-	        showRoomSelectionScreen();
-	        // محاولة الانضمام مباشرة بعد تهيئة الـ socket
-	        setTimeout(() => {
-	          initializeSocket();
-	          joinRoomByCode({ preventDefault: () => {} });
-	        }, 500);
-	      } else {
-	        // إذا لم يكن الاسم موجوداً، اذهب لشاشة تسجيل الدخول
-	        showScreen('loginScreen');
-	      }
-	    } else if (displayName) {
-	      // إذا كان الاسم محفوظاً، ننتقل مباشرة لشاشة اختيار الغرفة
-	      showRoomSelectionScreen();
-	      initializeSocket();
-	    } else {
-	      // الحالة الافتراضية: عرض شاشة تسجيل الدخول
-	      showScreen('loginScreen');
-	    }
-	  };
+      } else if (displayName) {
+        showRoomSelectionScreen();
+        initializeSocket();
+      } else {
+        showScreen('loginScreen');
+      }
+    };
   </script>
 </body>
 </html>
