@@ -2313,19 +2313,19 @@ function startTimer(endTime) {
     function handleChatMessage(data) {
       const messagesContainer = document.getElementById('chatMessages');
       
+     // استقبال رسالة الشات من السيرفر
+    function handleChatMessage(data) {
+      const messagesContainer = document.getElementById('chatMessages');
+      
       // إزالة رسالة "لا توجد رسائل" إذا كانت موجودة
       const emptyMsg = messagesContainer.querySelector('.chat-empty');
-      if (emptyMsg) {
-        emptyMsg.remove();
-      }
+      if (emptyMsg) emptyMsg.remove();
       
       const messageDiv = document.createElement('div');
       messageDiv.className = 'chat-message';
       
       const isMyMessage = data.senderId === userId;
-      if (isMyMessage) {
-        messageDiv.classList.add('my-message');
-      }
+      if (isMyMessage) messageDiv.classList.add('my-message');
       
       const time = new Date(data.timestamp).toLocaleTimeString('ar-SA', {
         hour: '2-digit',
@@ -2333,69 +2333,71 @@ function startTimer(endTime) {
       });
       
       messageDiv.innerHTML = `
-        <div class="chat-message-sender">${data.senderName}</div>
-        <div class="chat-message-text">${data.message}</div>
+        <div class="chat-message-sender">${escapeHtml(data.senderName)}</div>
+        <div class="chat-message-text">${escapeHtml(data.message)}</div>
         <div class="chat-message-time">${time}</div>
       `;
       
       messagesContainer.appendChild(messageDiv);
       
-      // ✅ التمرير التلقائي
+      // التمرير التلقائي
       scrollChatToBottom();
       
-      // تحديث إشعار الرسائل غير المقروءة
+      // إشعار الرسائل الجديدة
       if (!chatOpen) {
         unreadMessages++;
         updateChatNotification();
-        soundNewMessage.play(); // ✅ تشغيل صوت الرسالة الجديدة
+        soundNewMessage.play().catch(() => {}); // عشان ما يطلع خطأ لو الصوت محظور
       }
-    }ottom() {
+    }
+
+    // التمرير لأسفل الشات
+    function scrollChatToBottom() {
       const messagesContainer = document.getElementById('chatMessages');
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }   notification.id = 'chatNotification';
-        notification.className = 'chat-notification';
-        document.getElementById('chatToggleBtn').appendChild(notification);
+      if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
       }
-      notification.textContent = unreadMessages > 9 ? '9+' : unreadMessages;
-    } else {
-      if (notification) {
+    }
+
+    // تحديث إشعار عدد الرسائل غير المقروءة
+    function updateChatNotification() {
+      let notification = document.getElementById('chatNotification');
+      if (unreadMessages > 0 && !chatOpen) {
+        if (!notification) {
+          notification = document.createElement('div');
+          notification.id = 'chatNotification';
+          notification.className = 'chat-notification';
+          document.getElementById('chatToggleBtn').appendChild(notification);
+        }
+        notification.textContent = unreadMessages > 9 ? '9+' : unreadMessages;
+      } else if (notification) {
         notification.remove();
       }
     }
-  }
-  
-  // التمرير لأسفل المحادثات
-  function scrollChatToBottom() {
-    const messagesContainer = document.getElementById('chatMessages');
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-  }
-  
-  // تنظيف HTML لمنع XSS
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-  
-  // إظهار زر المحادثات
-  function showChatButton() {
-    const toggleBtn = document.getElementById('chatToggleBtn');
-    if (toggleBtn) {
-      toggleBtn.classList.add('active');
+
+    // تنظيف النص من XSS
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
     }
-  }
-  
-  // إخفاء زر المحادثات
-  function hideChatButton() {
-    const toggleBtn = document.getElementById('chatToggleBtn');
-    const chatBox = document.getElementById('chatBox');
-    if (toggleBtn) {
-      toggleBtn.classList.remove('active');
+
+    // إظهار وإخفاء زر الشات
+    function showChatButton() {
+      const btn = document.getElementById('chatToggleBtn');
+      if (btn) btn.classList.add('active');
     }
-    if (chatBox) {
-      chatBox.classList.remove('active');
+
+    function hideChatButton() {
+      const btn = document.getElementById('chatToggleBtn');
+      const box = document.getElementById('chatBox');
+      if (btn) btn.classList.remove('active');
+      if (box) box.classList.remove('active');
+      chatOpen = false;
+      unreadMessages = 0;
+      updateChatNotification();
+      document.getElementById('chatMessages').innerHTML = '<div class="chat-empty">لا توجد رسائل بعد... 💬</div>';
     }
-    chatOpen = false;
     
     // تنظيف الرسائل
     const messagesContainer = document.getElementById('chatMessages');
