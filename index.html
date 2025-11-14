@@ -2316,7 +2316,6 @@ function startTimer(endTime) {
         return;
       }
 
-      // Rate limiting بسيط
       const now = Date.now();
       chatMessageTimes = chatMessageTimes.filter(t => now - t < 10000);
       if (chatMessageTimes.length >= 5) {
@@ -2332,8 +2331,6 @@ function startTimer(endTime) {
     // استقبال رسالة الشات
     function handleChatMessage(data) {
       const container = document.getElementById('chatMessages');
-
-      // إزالة "لا توجد رسائل"
       const empty = container.querySelector('.chat-empty');
       if (empty) empty.remove();
 
@@ -2402,10 +2399,10 @@ function startTimer(endTime) {
       unreadMessages = 0;
       updateChatNotification();
       const container = document.getElementById('chatMessages');
-      container.innerHTML = '<div class="chat-empty">لا توجد رسائل بعد... 💬</div>';
+      if (container) container.innerHTML = '<div class="chat-empty">لا توجد رسائل بعد... 💬</div>';
     }
 
-    // مستمع للـ Enter في الشات
+    // Enter في الشات
     document.addEventListener('DOMContentLoaded', () => {
       const input = document.getElementById('chatInput');
       if (input) {
@@ -2415,10 +2412,7 @@ function startTimer(endTime) {
       }
     });
 
-    // ============================================
-    // نظام طلب جولة جديدة
-    // ============================================
-
+    // طلب جولة جديدة
     function requestNewRound() {
       if (!socket || socket.readyState !== WebSocket.OPEN) {
         showError('غير متصل بالخادم');
@@ -2453,14 +2447,13 @@ function startTimer(endTime) {
 
     function loadDarkModePreference() {
       const pref = localStorage.getItem('darkMode');
-      const icon = document.getElementById('darkModeIcon');
       if (pref === 'enabled') {
         document.body.classList.add('dark-mode');
+        const icon = document.getElementById('darkModeIcon');
         if (icon) icon.textContent = '☀️';
       }
     }
 
-    // أنيميشن الفوز
     function triggerWinAnimation() {
       const title = document.getElementById('resultTitle');
       if (title) {
@@ -2470,7 +2463,7 @@ function startTimer(endTime) {
       document.querySelectorAll('.confetti').forEach(c => c.remove());
     }
 
-    // تهيئة الصفحة عند التحميل
+    // تحميل الصفحة
     window.onload = () => {
       loadDarkModePreference();
       initializeFromStorage();
