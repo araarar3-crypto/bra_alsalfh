@@ -2400,13 +2400,13 @@ function startTimer(endTime) {
       document.querySelectorAll('.confetti').forEach(c => c.remove());
     }
 
-       window.onload = () => {
+    window.onload = () => {
       loadDarkModePreference();
       initializeFromStorage();
 
-      const hash = window.location.hash.substring(1);
-      if (hash && hash.length === 6) {
-        document.getElementById('roomCodeInput').value = hash;
+      const h = window.location.hash.substring(1);
+      if (h && h.length === 6) {
+        document.getElementById('roomCodeInput').value = h;
         if (displayName) {
           showRoomSelectionScreen();
           setTimeout(() => {
@@ -2422,7 +2422,7 @@ function startTimer(endTime) {
       } else {
         showScreen('loginScreen');
       }
-    };   // هذي النقطة والفاصلة مهمة جدًا!
+    };
   </script>
 </body>
 </html>
