@@ -2400,17 +2400,29 @@ function startTimer(endTime) {
       document.querySelectorAll('.confetti').forEach(c => c.remove());
     }
 
-    window.onload = () => {
+       window.onload = () => {
       loadDarkModePreference();
       initializeFromStorage();
-      const h = window.location.hash.substring(1);
-      if (h && h.length === 6) {
-        document.getElementById('roomCodeInput').value = h;
-        if (displayName) { showRoomSelectionScreen(); setTimeout(() => { initializeSocket(); joinRoomByCode({preventDefault:()=>{}}); }, 500); }
-        else showScreen('loginScreen');
-      } else if (displayName) { showRoomSelectionScreen(); initializeSocket(); }
-      else showScreen('loginScreen');
-    };
+
+      const hash = window.location.hash.substring(1);
+      if (hash && hash.length === 6) {
+        document.getElementById('roomCodeInput').value = hash;
+        if (displayName) {
+          showRoomSelectionScreen();
+          setTimeout(() => {
+            initializeSocket();
+            joinRoomByCode({ preventDefault: () => {} });
+          }, 500);
+        } else {
+          showScreen('loginScreen');
+        }
+      } else if (displayName) {
+        showRoomSelectionScreen();
+        initializeSocket();
+      } else {
+        showScreen('loginScreen');
+      }
+    };   // هذي النقطة والفاصلة مهمة جدًا!
   </script>
 </body>
 </html>
