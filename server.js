@@ -1973,11 +1973,12 @@ function handleLeaveRoom(ws, userId, data) {
   
   const room = rooms.get(player.roomId);
   if (room) {
-    // ✅ Fix #3: Clear all timers to prevent memory leaks
+    // ✅ تنظيف جميع المؤقتات أولاً
     if (room.questionTimer) clearTimeout(room.questionTimer);
     if (room.votingTimer) clearTimeout(room.votingTimer);
     if (room.challengeTimer) clearTimeout(room.challengeTimer);
   }
+  
   if (room) {
     if (room.gameState === 'inGame' && room.players[room.currentPlayerIndex] === userId) {
       const currentIndex = room.players.indexOf(userId);
@@ -1997,17 +1998,23 @@ function handleLeaveRoom(ws, userId, data) {
       room.players = room.players.filter(id => id !== userId);
     }
     
+    // ✅ الإصلاح: حذف الشرط الذي يمنع حذف الغرف في حالة الانتظار
     if (room.players.length === 0) {
-      // عدم حذف الغرفة إذا كانت في حالة الانتظار (لم تبدأ اللعبة بعد)
-      if (room.gameState !== 'waiting') {
-        if (room.questionTimer) clearTimeout(room.questionTimer);
-        if (room.votingTimer) clearTimeout(room.votingTimer);
-        rooms.delete(room.id);
-        console.log(`🗑️ تم حذف الغرفة ${room.roomCode} لعدم وجود لاعبين.`);
-      } else {
-        console.log(`⏸️ الغرفة ${room.roomCode} فارغة لكن في حالة الانتظار، لن يتم حذفها.`);
-      }
+      // تنظيف إضافي للمؤقتات
+      if (room.questionTimer) clearTimeout(room.questionTimer);
+      if (room.votingTimer) clearTimeout(room.votingTimer);
+      if (room.challengeTimer) clearTimeout(room.challengeTimer);
+      
+      // ✅ حذف الغرفة مباشرة - لا توجد شروط
+      rooms.delete(room.id);
+      console.log(`🗑️ تم حذف الغرفة ${room.roomCode} لأنها أصبحت فارغة.`);
     } else {
+      // ... باقي الكود
+    }
+  }
+  
+  // ... باقي الكود
+}
       // تحديث قائمة اللاعبين للجميع
       broadcastToRoom(room.id, 'playerLeft', {
         players: getPlayersInRoom(room.id)
