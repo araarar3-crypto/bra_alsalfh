@@ -2081,19 +2081,30 @@ function handleChatMessage(ws, userId, data) {
   console.log(`💬 ${player.name} في الغرفة ${rooms.get(player.roomId).roomCode}: ${message.trim()}`);
 }
 
-// ✅ دالة معالجة زر "خلصنا تصويت"
+// ✅ دالة تغيير الاسم (مستقلة)
 function handleChangeName(ws, userId, data) {
-function handleLeaveRoom(ws, userId, data) {
+  const { newName } = data;
+  const player = players.get(userId);
+  if (!player) return;
+  
+  player.name = newName;
+  const room = rooms.get(player.roomId);
+  if (room) {
+    broadcastToRoom(room.id, 'nameChanged', {
+      userId,
+      newName,
+      players: getPlayersInRoom(room.id)
+    });
+  }
+}
+
+// ✅ دالة إنهاء التصويت (مستقلة)
 function handleFinishVoting(ws, userId, data) {
   const player = players.get(userId);
-  if (!player || !player.roomId) {
-    return sendToPlayer(userId, 'error', { message: 'أنت لست في غرفة.' });
-  }
+  if (!player || !player.roomId) return;
   
   const room = rooms.get(player.roomId);
-  if (!room || room.gameState !== 'inGame') {
-    return sendToPlayer(userId, 'error', { message: 'لا يمكن الانتقال الآن.' });
-  }
+  if (!room || room.gameState !== 'inGame') return;
   
   if (!player.isCreator) {
     return sendToPlayer(userId, 'finishVotingError', { message: 'الزر هذا لمنشئ الغرفة بس' });
@@ -2109,39 +2120,37 @@ function handleFinishVoting(ws, userId, data) {
   });
   
   broadcastToRoom(room.id, 'votingPhase', { players: getPlayersInRoom(room.id) });
-  console.log(`منشئ الغرفة ${player.name} انتقل للتصويت`);
-  
   startVotingTimer(room);
-  rooms.set(room.id, room);
 }
+
+// ✅ دالة مغادرة الغرفة (مستقلة)
+function handleLeaveRoom(ws, userId, data) {
   const player = players.get(userId);
   if (!player) return;
   
   const room = rooms.get(player.roomId);
   if (!room) return;
   
-  // ✅ حذف اللاعب مباشرة لتجنب مشاكل الأسماء
   room.players = room.players.filter(id => id !== userId);
   players.delete(userId);
   
-  console.log(`👋 انقطع اتصال اللاعب ${player.name} (${userId}).`);
+  console.log(`👋 انقطع اتصال اللاعب ${player.name}`);
   
-  // ✅ إرسال تحديث لجميع اللاعبين بأن اللاعب انقطع
   broadcastToRoom(room.id, 'playerDisconnected', {
     userId: userId,
     players: getPlayersInRoom(room.id)
   });
-  
-  // ✅ إدارة حالة اللعبة حسب المرحلة
-  if (room.gameState === 'inGame') {
-    // ✅ إذا كان المندس انقطع، إلغاء اللعبة
-    if (room.spyId === userId) {
+
+  // إذا انقطع المندس، نرجع الغرفة لوضع الانتظار
+  if (room.gameState !== 'waiting' && room.spyId === userId) {
       room.gameState = 'waiting';
-      room.currentRound = 0;
-      room.votes = [];
-      room.challenge = null;
-      room.playersAsked = new Set();
-      
+      broadcastToRoom(room.id, 'gameReset', {
+        message: 'سحب عليكم المندس، خربت اللعبة!',
+        players: getPlayersInRoom(room.id)
+      });
+  }
+}
+
       // اللاعب محذوف بالفعل بالأعلى
       
       broadcastToRoom(room.id, 'gameReset', {
