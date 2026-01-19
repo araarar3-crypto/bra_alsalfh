@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة التحكم - برا السالفة</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+      min-height: 100vh;
+      color: #e0e0e0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+    }
+
+    .header h1 {
+      color: #667eea;
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    .logout-btn {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .logout-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .sidebar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .menu-btn {
+      padding: 12px 24px;
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+      border: 2px solid #667eea;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .menu-btn:hover {
+      background: rgba(102, 126, 234, 0.2);
+    }
+
+    .menu-btn.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: #667eea;
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .content {
+      background: rgba(30, 30, 45, 0.8);
+      border: 1px solid rgba(102, 126, 234, 0.2);
+      border-radius: 12px;
+      padding: 30px;
+      backdrop-filter: blur(10px);
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+    }
+
+    .stat-label {
+      color: #999;
+      font-size: 14px;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    .stat-value {
+      color: #667eea;
+      font-size: 36px;
+      font-weight: 700;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #667eea;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      background: rgba(102, 126, 234, 0.05);
+      border: 1px solid rgba(102, 126, 234, 0.2);
+      border-radius: 8px;
+      color: #e0e0e0;
+      font-family: inherit;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.1);
+      box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+    }
+
+    .form-group input::placeholder {
+      color: #666;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .file-input-wrapper input[type="file"] {
+      display: none;
+    }
+
+    .file-input-label {
+      display: block;
+      padding: 12px;
+      background: rgba(102, 126, 234, 0.1);
+      border: 2px dashed rgba(102, 126, 234, 0.3);
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      color: #667eea;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .file-input-label:hover {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.15);
+    }
+
+    .form-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-danger {
+      background: rgba(255, 76, 76, 0.2);
+      color: #ff4c4c;
+      border: 1px solid #ff4c4c;
+      flex: 0.5;
+    }
+
+    .btn-danger:hover {
+      background: rgba(255, 76, 76, 0.3);
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      margin-top: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: rgba(102, 126, 234, 0.1);
+      border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+    }
+
+    th {
+      padding: 15px;
+      text-align: right;
+      color: #667eea;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    td {
+      padding: 15px;
+      border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+      color: #e0e0e0;
+    }
+
+    tbody tr:hover {
+      background: rgba(102, 126, 234, 0.05);
+    }
+
+    .message {
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .message.success {
+      background: rgba(76, 255, 76, 0.2);
+      color: #4cff4c;
+      border: 1px solid #4cff4c;
+      display: block;
+    }
+
+    .message.error {
+      background: rgba(255, 76, 76, 0.2);
+      color: #ff4c4c;
+      border: 1px solid #ff4c4c;
+      display: block;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        flex-direction: column;
+      }
+
+      .menu-btn {
+        width: 100%;
+      }
+
+      .form-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>👑 لوحة التحكم</h1>
+      <button class="logout-btn" onclick="logout()">تسجيل الخروج</button>
+    </div>
+
+    <div class="sidebar">
+      <button class="menu-btn active" onclick="switchSection('stats')">📊 الإحصائيات</button>
+      <button class="menu-btn" onclick="switchSection('ads')">📢 الإعلانات</button>
+    </div>
+
+    <div class="content">
+      <div id="message" class="message"></div>
+
+      <!-- قسم الإحصائيات -->
+      <div id="stats" class="section active">
+        <h2 style="color: #667eea; margin-bottom: 20px;">📊 الإحصائيات الحية</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">👥 اللاعبين الآن</div>
+            <div class="stat-value" id="playersNow">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">📈 إجمالي الزيارات</div>
+            <div class="stat-value" id="totalVisits">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">👁️ شافوا الإعلان</div>
+            <div class="stat-value" id="adViews">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">📢 الإعلانات النشطة</div>
+            <div class="stat-value" id="activeAds">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- قسم الإعلانات -->
+      <div id="ads" class="section">
+        <h2 style="color: #667eea; margin-bottom: 20px;">📢 إدارة الإعلانات</h2>
+
+        <!-- نموذج إنشاء إعلان -->
+        <div style="background: rgba(102, 126, 234, 0.05); border: 1px solid rgba(102, 126, 234, 0.2); border-radius: 12px; padding: 20px; margin-bottom: 30px;">
+          <h3 style="color: #667eea; margin-bottom: 20px;">✨ إنشاء إعلان جديد</h3>
+
+          <div class="form-group">
+            <label>العنوان *</label>
+            <input type="text" id="adTitle" placeholder="مثال: عرض خاص">
+          </div>
+
+          <div class="form-group">
+            <label>الوصف (اختياري)</label>
+            <textarea id="adDescription" placeholder="وصف الإعلان" rows="3"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>الرابط (اختياري)</label>
+            <input type="url" id="adLink" placeholder="https://example.com">
+          </div>
+
+          <div class="form-group">
+            <label>مدة العرض *</label>
+            <select id="adDuration">
+              <option value="">اختر المدة</option>
+              <option value="1">يوم واحد</option>
+              <option value="3">3 أيام</option>
+              <option value="7">أسبوع واحد</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>صورة الإعلان (اختياري)</label>
+            <div class="file-input-wrapper">
+              <input type="file" id="adImage" accept="image/*">
+              <label for="adImage" class="file-input-label">📁 اختر صورة من جهازك</label>
+            </div>
+          </div>
+
+          <div class="form-buttons">
+            <button class="btn btn-primary" onclick="createAd()">✨ إنشاء الإعلان</button>
+          </div>
+        </div>
+
+        <!-- جدول الإعلانات -->
+        <h3 style="color: #667eea; margin-bottom: 20px;">📊 الإعلانات النشطة</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>العنوان</th>
+                <th>المشاهدات</th>
+                <th>النقرات</th>
+                <th>الإغلاقات</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="adsTable">
+              <tr>
+                <td colspan="5" style="text-align: center; color: #999;">لا توجد إعلانات نشطة</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api';
+    let currentToken = localStorage.getItem('adminToken');
+
+    // التحقق من المصادقة
+    if (!currentToken) {
+      showLoginForm();
+    } else {
+      loadStats();
+      loadAds();
+      setInterval(() => {
+        loadStats();
+        loadAds();
+      }, 10000);
+    }
+
+    function showLoginForm() {
+      document.body.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);">
+          <div style="background: rgba(30, 30, 45, 0.8); border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 12px; padding: 40px; max-width: 400px; width: 100%; backdrop-filter: blur(10px);">
+            <h1 style="color: #667eea; text-align: center; margin-bottom: 30px; font-size: 28px;">👑 لوحة التحكم</h1>
+            
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; margin-bottom: 8px; color: #667eea; font-weight: 600;">البريد الإلكتروني</label>
+              <input type="email" id="loginEmail" placeholder="البريد الإلكتروني" style="width: 100%; padding: 12px; background: rgba(102, 126, 234, 0.05); border: 1px solid rgba(102, 126, 234, 0.2); border-radius: 8px; color: #e0e0e0; font-size: 14px;">
+            </div>
+
+            <div style="margin-bottom: 30px;">
+              <label style="display: block; margin-bottom: 8px; color: #667eea; font-weight: 600;">كلمة المرور</label>
+              <input type="password" id="loginPassword" placeholder="كلمة المرور" style="width: 100%; padding: 12px; background: rgba(102, 126, 234, 0.05); border: 1px solid rgba(102, 126, 234, 0.2); border-radius: 8px; color: #e0e0e0; font-size: 14px;">
+            </div>
+
+            <button onclick="login()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 16px; transition: all 0.3s;">تسجيل الدخول</button>
+          </div>
+        </div>
+      `;
+      window.login = function() {
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+
+        if (email === 'B7239355@gmail.com' && password === 'Hdmaa1122') {
+          currentToken = 'valid_token_' + Date.now();
+          localStorage.setItem('adminToken', currentToken);
+          location.reload();
+        } else {
+          alert('بيانات دخول خاطئة');
+        }
+      };
+    }
+
+    function logout() {
+      localStorage.removeItem('adminToken');
+      location.reload();
+    }
+
+    function switchSection(section) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(section).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    async function loadStats() {
+      try {
+        const response = await fetch(`${API_BASE}/game/stats`);
+        const stats = await response.json();
+        
+        document.getElementById('playersNow').textContent = stats.currentPlayers || 0;
+        document.getElementById('totalVisits').textContent = stats.totalVisits || 0;
+        document.getElementById('adViews').textContent = stats.playersSeenAds || 0;
+        document.getElementById('activeAds').textContent = stats.activeAds || 0;
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+
+    async function loadAds() {
+      try {
+        const response = await fetch(`${API_BASE}/ads/active`);
+        const ads = await response.json();
+        
+        // الحصول على الإحصائيات
+        const statsResponse = await fetch(`${API_BASE}/ads/stats`);
+        const stats = await statsResponse.json();
+        const statsMap = {};
+        stats.forEach(s => statsMap[s.id] = s);
+        
+        // دمج البيانات
+        const adsWithStats = ads.map(ad => ({
+          ...ad,
+          views: statsMap[ad.id]?.views || 0,
+          clicks: statsMap[ad.id]?.clicks || 0,
+          closes: statsMap[ad.id]?.closes || 0
+        }));
+        
+        const tbody = document.getElementById('adsTable');
+        if (adsWithStats.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">لا توجد إعلانات نشطة</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = adsWithStats.map(ad => `
+          <tr>
+            <td style="color: #667eea; font-weight: 600;">${ad.title}</td>
+            <td>${ad.views || 0}</td>
+            <td>${ad.clicks || 0}</td>
+            <td>${ad.closes || 0}</td>
+            <td>
+              <button class="btn-danger" onclick="deleteAd('${ad.id}')">حذف</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (error) {
+        console.error('Error loading ads:', error);
+      }
+    }
+
+    async function createAd() {
+      const title = document.getElementById('adTitle').value;
+      const description = document.getElementById('adDescription').value;
+      const link = document.getElementById('adLink').value;
+      const duration = document.getElementById('adDuration').value;
+      const imageFile = document.getElementById('adImage').files[0];
+
+      if (!title || !duration) {
+        showMessage('الرجاء ملء العنوان واختيار المدة', 'error');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('description', description);
+      formData.append('link', link);
+      formData.append('duration', duration);
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/ads/create`, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (response.ok) {
+          showMessage('✅ تم إنشاء الإعلان بنجاح!', 'success');
+          document.getElementById('adTitle').value = '';
+          document.getElementById('adDescription').value = '';
+          document.getElementById('adLink').value = '';
+          document.getElementById('adDuration').value = '';
+          document.getElementById('adImage').value = '';
+          loadAds();
+          loadStats();
+        } else {
+          showMessage('❌ خطأ في إنشاء الإعلان', 'error');
+        }
+      } catch (error) {
+        showMessage('❌ خطأ في الاتصال', 'error');
+      }
+    }
+
+    async function deleteAd(adId) {
+      if (!confirm('هل تريد حذف هذا الإعلان؟')) return;
+
+      try {
+        const response = await fetch(`${API_BASE}/ads/${adId}`, {
+          method: 'DELETE'
+        });
+
+        if (response.ok) {
+          showMessage('✅ تم حذف الإعلان بنجاح!', 'success');
+          loadAds();
+          loadStats();
+        } else {
+          showMessage('❌ خطأ في حذف الإعلان', 'error');
+        }
+      } catch (error) {
+        showMessage('❌ خطأ في الاتصال', 'error');
+      }
+    }
+
+    function showMessage(text, type) {
+      const messageEl = document.getElementById('message');
+      messageEl.textContent = text;
+      messageEl.className = `message ${type}`;
+      setTimeout(() => {
+        messageEl.className = 'message';
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
