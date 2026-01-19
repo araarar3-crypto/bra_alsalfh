@@ -1,0 +1,23 @@
+{
+  "name": "bra-salfa-game",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "لعبة برا السالفة مع لوحة تحكم",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": ["game", "bra-salfa"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "compression": "^1.7.4",
+    "ws": "^8.14.2",
+    "uuid": "^9.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "multer": "^1.4.5-lts.1"
+  }
+}
