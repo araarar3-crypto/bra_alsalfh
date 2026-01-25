@@ -87,12 +87,12 @@ app.delete('/api/advertisements/:id', (req, res) => {
   res.sendStatus(200);
 });
 
-// ✅ endpoint تسجيل الدخول الآمن
+// ✅ تسجيل الدخول الآمن - بدون قيم افتراضية مكشوفة
 app.post('/api/admin-login', (req, res) => {
   const { email, password } = req.body;
   
-  const adminEmail = process.env.ADMIN_EMAIL || 'B7239355@gmail.com';
-  const adminPassword = process.env.ADMIN_PASSWORD || 'Hdmaa1122';
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
   
   if (email === adminEmail && password === adminPassword) {
     res.json({ success: true, message: 'تم تسجيل الدخول بنجاح' });
@@ -103,7 +103,7 @@ app.post('/api/admin-login', (req, res) => {
 
 // واجهة الإحصائيات
 app.get('/api/statistics', (req, res) => {
-  const statsPassword = process.env.STATS_PASSWORD || 'Hdmaa1122';
+  const statsPassword = process.env.STATS_PASSWORD;
   if (req.query.password !== statsPassword) {
     return res.status(401).json({ error: 'غير مصرح' });
   }
