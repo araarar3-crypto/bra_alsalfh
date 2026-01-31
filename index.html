@@ -1503,16 +1503,27 @@
 
     <h1>برا السالفة 🎮</h1>
     
-    <!-- شاشة تسجيل الدخول -->
-    <div id="loginScreen" class="screen active">
-      <form onsubmit="return startGame(event);">
-        <div class="input-group">
-          <label for="playerName">ما اسمك؟</label>
-          <input id="playerName" type="text" placeholder="اكتب اسمك هنا" maxlength="20" required>
-        </div>
-        <button type="submit" class="btn-primary">ابدأ اللعب 🎮</button>
-      </form>
+<div id="loginScreen" class="screen active">
+  <form onsubmit="return startGame(event);">
+    <div class="input-group">
+      <label for="playerName">ما اسمك؟</label>
+      <input id="playerName" type="text" placeholder="اكتب اسمك هنا" maxlength="20" required>
     </div>
+    <button type="submit" class="btn-primary">ابدأ اللعب 🎮</button>
+  </form>
+
+  <footer style="margin-top: 40px; text-align: center; font-size: 11px; direction: rtl; background: transparent;">
+      <p style="margin: 0 0 4px 0; color: #888; opacity: 0.7;">
+          <bdi>جميع الحقوق محفوظة © 2026 لعبة برا السالفة</bdi>
+      </p>
+      <div style="display: flex; justify-content: center; gap: 15px;">
+          <a href="/privacy.html" style="color: #667eea; text-decoration: none; font-weight: bold; opacity: 0.9;">سياسة الخصوصية</a>
+          <a href="/terms.html" style="color: #667eea; text-decoration: none; font-weight: bold; opacity: 0.9;">شروط الاستخدام</a>
+          <a href="/contact.html" style="color: #667eea; text-decoration: none; font-weight: bold; opacity: 0.9;">اتصل بنا</a>
+      </div>
+  </footer>
+</div>
+
     
     <!-- شاشة اختيار الغرفة -->
     <div id="roomSelectionScreen" class="screen">
@@ -4436,15 +4447,3 @@ function checkAndEnableRamadanTheme() {
 }
 
 </script>
-<footer id="main-footer" style="text-align: center; padding: 20px 0; font-size: 11px; direction: rtl; background: transparent; width: 100%; margin-top: 20px;">
-    <div style="display: inline-block;">
-        <p style="margin: 0 0 8px 0; color: #888; opacity: 0.8;">
-            <bdi>جميع الحقوق محفوظة © 2026 لعبة برا السالفة</bdi>
-        </p>
-        <div style="display: flex; justify-content: center; gap: 15px;">
-            <a href="/privacy.html" style="color: #667eea; text-decoration: none; font-weight: bold; opacity: 0.9;">سياسة الخصوصية</a>
-            <a href="/terms.html" style="color: #667eea; text-decoration: none; font-weight: bold; opacity: 0.9;">شروط الاستخدام</a>
-            <a href="/contact.html" style="color: #667eea; text-decoration: none; font-weight: bold; opacity: 0.9;">اتصل بنا</a>
-        </div>
-    </div>
-</footer>
