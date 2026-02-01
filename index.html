@@ -2240,29 +2240,30 @@ case 'roomState':
     
     socket.onmessage = handleMessage;
     
-    socket.onclose = () => {
-      console.log('❌ انقطع الاتصال عبر WebSocket');
+        socket.onclose = () => {
+      console.log('❌ انقطع الاتصال (جاري المحاولة مجدداً بصمت...)');
       clearInterval(wsPingInterval);
       socket = null;
-      
-      // ✅ فحص عدد المحاولات قبل إعادة الاتصال
+
       if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
         reconnectAttempts++;
-        const delay = 3000 * reconnectAttempts; // زيادة الوقت مع كل محاولة
+        // خليناها ثانية وحدة بس عشان يرجع يشبك بسرعة
+        const delay = 1000 * reconnectAttempts; 
         setTimeout(() => {
-          console.log(`🔄 محاولة إعادة الاتصال (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
+          console.log(`🔄 محاولة رقم ${reconnectAttempts} لإعادة الاتصال...`);
           initializeSocket();
         }, delay);
       } else {
-        showError('❌ فشل الاتصال بالسيرفر. يرجى تحديث الصفحة.');
+        // هنا بس نطلع الرسالة للمستخدم إذا فشلت كل الـ 5 محاولات
+        showError('النت عندك تعبان أو السيرفر مفصول، جرب تحدث الصفحة.', true);
       }
     };
-    
+
     socket.onerror = (error) => {
-      console.error('❌ خطأ في WebSocket:', error);
-      showError('خطأ في الاتصال بالسيرفر.');
+      // سوينا كتم (Mute) لرسالة الخطأ عشان ما تزعجك مع كل رمشة نت
+      console.log('⚠️ خطأ اتصال عابر (تم تجاهله)');
     };
-  }
+
   
   // ✅ دالة بدء اللعبة (تسجيل الدخول)
   function startGame(event) {
