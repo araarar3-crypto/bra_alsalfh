@@ -2085,12 +2085,18 @@ case 'roomState':
           updatePlayersList(data.players);
           break;
         case 'nameChanged':
-          displayName = data.newName;
-          localStorage.setItem('playerName', displayName);
-          document.getElementById('playerName').value = displayName;
+          // التعديل هنا: نتأكد إن التغيير يخصني أنا فقط ✅
+          if (data.userId === userId) {
+            displayName = data.newName;
+            localStorage.setItem('playerName', displayName);
+            document.getElementById('playerName').value = displayName;
+            showError(`✅ تم تغيير اسمك إلى ${displayName}`);
+          }
+          
+          // تحديث القائمة لازم يصير للكل (عشان تشوف اسم خويك الجديد)
           updatePlayersList(data.players);
-          showError(`✅ تم تغيير اسمك إلى ${displayName}`);
           break;
+
         case 'creatorChanged':
           creatorId = data.newCreatorId;
           updatePlayersList(players); // لإعادة عرض زر بدء اللعبة للمنشئ الجديد
